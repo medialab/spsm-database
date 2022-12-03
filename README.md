@@ -21,7 +21,7 @@ Both programs `defacto.py` (De Facto) and `science.py` (Science Feedback) yield 
 By default, the programs' CSV files are titled `defacto_<DATE>.csv` and `science-feedback_<DATE>.csv`, respectively, with the day's date in the file name.
 
 ## De Facto
-The program `defacto.py` sends a request to the De Facto database's endpoint, parses the response, and writes import data to a CSV file.
+The program `defacto.py` sends a request to the De Facto database's endpoint, parses the response, and writes important data to a CSV file.
 ```shell
 $ python defacto.py config.json
 ```
