@@ -1,0 +1,7 @@
+{
+    "science-feedback":{
+        "token": "TOKEN",
+        "endpoint": "ENDPOINT"
+    },
+    "defacto":"ENDPOINT"
+}
