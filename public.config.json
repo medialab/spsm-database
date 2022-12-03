@@ -1,7 +1,7 @@
 {
     "science-feedback":{
         "token": "TOKEN",
-        "endpoint": "ENDPOINT"
+        "endpoint": "https://api.feedback.org/appearances/content/"
     },
     "defacto":"ENDPOINT"
 }
