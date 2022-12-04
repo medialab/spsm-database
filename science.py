@@ -37,14 +37,15 @@ def cli(directory, configfile, outfile):
                 for i in tqdm(deseriealized_data, total=len(deseriealized_data), desc=f"Processing {file}"):
 
                     attempts = 0
-                    response = requests.models.Response()
-                    response.status_code = 400
-                    while response.status_code != 200 and attempts < 3 :
-                        response = requests.get(
+                    response = requests.get(
                         "{endpoint}{id}".format(endpoint=config["endpoint"], id=i.get("urlContentId")),
                         headers={"X-Access-Tokens": config["token"]},)
-                        attempts += 1
+                    while response.status_code != 200 and attempts < 3 :
                         time.sleep(1)
+                        response = requests.get(
+                            "{endpoint}{id}".format(endpoint=config["endpoint"], id=i.get("urlContentId")),
+                            headers={"X-Access-Tokens": config["token"]},)
+                        attempts += 1
 
                     json_response = response.json()
 
