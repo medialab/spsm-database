@@ -39,14 +39,17 @@ class DeFactoData:
         self.id = claim.get("id")
         self.themes = "|".join(claim.get("themes"))
         self.tags = "|".join(claim.get("tags"))
+        self.claimReviewed = None
         self.datePublished = None
         self.url = None
         self.ratingValue = None
         self.alternateName = None
 
-        if claim.get("claim-review") and claim["claim-review"].get("itemReviewed"):
-            self.datePublished = claim["claim-review"]["itemReviewed"].get("datePublished")
-            self.url = claim["claim-review"]["itemReviewed"]["appearance"].get("url")
+        if claim.get("claim-review"):
+            self.claimReviewed = claim["claim-review"].get("claimReviewed")
+            if claim["claim-review"].get("itemReviewed"):
+                self.datePublished = claim["claim-review"]["itemReviewed"].get("datePublished")
+                self.url = claim["claim-review"]["itemReviewed"]["appearance"].get("url")
 
         if claim.get("claim-review") and claim["claim-review"].get("reviewRating"):
             self.ratingValue = claim["claim-review"]["reviewRating"].get("ratingValue")
@@ -59,11 +62,11 @@ class DeFactoData:
 def cli(config, outfile):
     data = DeFactoJSON(config).load_data()
 
-    rows = [{"id":DeFactoData(claim).id, "themes":DeFactoData(claim).themes, "tags":DeFactoData(claim).tags, "datePublished":DeFactoData(claim).datePublished, "url":DeFactoData(claim).url, "ratingValue":DeFactoData(claim).ratingValue, "alternateName":DeFactoData(claim).alternateName} \
+    rows = [{"id":DeFactoData(claim).id, "claimReviewed":DeFactoData(claim).claimReviewed, "themes":DeFactoData(claim).themes, "tags":DeFactoData(claim).tags, "datePublished":DeFactoData(claim).datePublished, "url":DeFactoData(claim).url, "ratingValue":DeFactoData(claim).ratingValue, "alternateName":DeFactoData(claim).alternateName} \
         for claim in data["data"] if DeFactoData(claim).url and is_url(DeFactoData(claim).url)]
 
     with open(outfile, "w", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "themes", "tags", "datePublished", "url", "ratingValue", "alternateName"])
+        writer = csv.DictWriter(f, fieldnames=["id", "claimReviewed", "themes", "tags", "datePublished", "url", "ratingValue", "alternateName"])
         writer.writeheader()
         writer.writerows(rows)
 

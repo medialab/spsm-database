@@ -2,6 +2,66 @@
 
 Tools to update and modify the SPSM project database's CSV files.
 
+# Collection 1: Misinformation Sources
+
+This collection presents unique URLs pointing to sources of verified misinformation online. If two datasets have the same URL, fields from the second dataset are added to the row if data is not already entered in those fields. This means that, when *Science Feedback* provides multiple appearances of the same URL, data from only the first one encountered will be entered in the collection.
+
+ ```mermaid
+flowchart LR
+
+subgraph condor
+    url_rid
+    clean_url
+    share_title
+    first_post_time
+    tpfc_rating
+    tpfc_first_fact_check
+    public_shares_top_country
+end
+
+mainid[id]---id---urlContentId---url_rid
+maintitle[title]---dfclaimReviewed---title---share_title
+mainurl[url]---dfurl---sfurl---clean_url
+maindate[date]---datePublished---publishedDate---first_post_time
+mainreview[review]---alternateName---urlReviewAlternateName---tpfc_rating
+
+subgraph shared fields
+    mainid
+    sources
+    maintitle
+    mainurl
+    maindate
+    mainreview
+end
+
+subgraph science feedback
+    urlContentId
+    appearanceId
+    sfurl[url]
+    sfclaimReviewed[claimReviewed]
+    publishedDate
+    publisher
+    title
+    urlReviewAlternateName
+    urlReviewRatingValue
+    reviewStandardForm
+    reviewsRatingValue
+end
+
+subgraph de facto
+    id
+    dfurl[url]
+    dfclaimReviewed[claimReviewed]
+    datePublished
+    alternateName
+    themes
+    tags
+    ratingValue
+end
+ ```
+
+
+
 # Request new data
 Both programs `defacto.py` (De Facto) and `science.py` (Science Feedback) yield CSV files whose names can be customized with the option `--outfile`. 
 By default, the programs' CSV files are titled `defacto_<DATE>.csv` and `science-feedback_<DATE>.csv`, respectively, with the day's date in the file name.
@@ -25,7 +85,7 @@ a protected endpoint. Science Feedback's API requires a token. Provide both of t
 ```shell
 $ python defacto.py config.json
 ```
-yields columns: `["id", "themes", "tags", "datePublished", "url", "ratingValue", "alternateName"]`
+yields columns: `["id", "claimReviewed", "themes", "tags", "datePublished", "url", "ratingValue", "alternateName"]`
 
 ---
 
