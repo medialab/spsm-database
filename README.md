@@ -2,6 +2,8 @@
 
 Tools to update and modify the SPSM project database's CSV files.
 
+When downloading this repository, create a virtual Python environment with the packages `click`, `minet`, `requests`, and `ural`.
+
 # Collection 1: Misinformation Sources
 
 The collection holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data collected from Condor, Science Feedback, and De Facto and makes the data comptabile with the merged collection. ([Requesting and formatting in CSV new data from Science Feedback and De Facto](https://github.com/medialab/spsm-database#request-new-data)) The program `merge.py` writes its results either to the CSV file `misinformation_sources_<TODAY>.csv` or, if that already exists and to avoid overwriting data, a similar path with a version number appended to the end. In the file, each row corresponds to one source of misinformation online, whose unique identifier (`id`) is a hash of its normalized URL.
