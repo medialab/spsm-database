@@ -4,7 +4,13 @@ Tools to update and modify the SPSM project database's CSV files.
 
 # Collection 1: Misinformation Sources
 
-This collection presents unique URLs pointing to sources of verified misinformation online. If two datasets have the same URL, fields from the second dataset are added to the row if data is not already entered in those fields. This means that, when *Science Feedback* provides multiple appearances of the same URL, data from only the first one encountered will be entered in the collection.
+The collection of misinformation sources holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data from Condor, Science Feedback, or De Facto and makes the data comptabile with the merged collection.
+
+The first time `merge.py` adds a new source of misinformation to the collection, the shared fields `url`, `date`, `title`, and `review` are populated with data mapped from the original dataset. In addition to mapping data, each new entry also has the created fields `sources`, `normalized_url`, and `normalized_url_hash`. The normalized URL and its hash protect against duplicates and provide a unique ID for each source, respectively.
+
+If two different datasets have the same URL, fields from the second dataset are added to the collection if the second dataset has not already contributed to information about that particular source of misinformation. The `sources` field is then updated to include the second dataset. Multiple datasets are concatenated in the `sources` field using a pipe, i.e. "`condor|science`".
+
+While only a portion of a dataset's data is mapped to shared fields in the collection, the collection of misinformation nevertheless preserves the original data. To all the original fieldnames, the program `merge.py` adds a prefix signifying the relevant dataset. The program then reproduces the original data in the dataset's relevant column. For example, while Science Feedback's field `title` is both mapped to the shared field `title` and reproduced in the field `science_title`, data from Science Feedback's field `claimReveiwed`, which is not mapped to a shared field, is nevertheless preserved in the collection's field `science_claimReviewed`. All data data fields in the diagram below are preserved in the collection.
 
  ```mermaid
 flowchart LR
@@ -19,14 +25,13 @@ subgraph condor
     public_shares_top_country
 end
 
-mainid[id]---id---urlContentId---url_rid
-maintitle[title]---dfclaimReviewed---title---share_title
 mainurl[url]---dfurl---sfurl---clean_url
 maindate[date]---datePublished---publishedDate---first_post_time
+maintitle[title]---dfclaimReviewed---title---share_title
 mainreview[review]---alternateName---urlReviewAlternateName---tpfc_rating
 
 subgraph shared fields
-    mainid
+    mainid[id]
     sources
     maintitle
     mainurl
@@ -59,7 +64,6 @@ subgraph de facto
     ratingValue
 end
  ```
-
 
 
 # Request new data
