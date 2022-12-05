@@ -217,7 +217,7 @@ def main(dataset:str, file:str, length:str, collection:str):
                             "defacto_alternateName":compatible_row["defacto_alternateName"],
                             "defacto_themes":compatible_row["defacto_themes"],
                             "defacto_tags":compatible_row["defacto_tags"],
-                            "defacto_ratingValue":compatible_row["defcto_ratingValue"]
+                            "defacto_ratingValue":compatible_row["defacto_ratingValue"]
                         }
                     elif dataset == "condor":
                         map_special_fieldnames = {
