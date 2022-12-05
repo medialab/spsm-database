@@ -4,28 +4,35 @@ Tools to update and modify the SPSM project database's CSV files.
 
 # Collection 1: Misinformation Sources
 
-The collection of misinformation sources holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data from Condor, Science Feedback, or De Facto and makes the data comptabile with the merged collection.
+The collection holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data collected from Condor, Science Feedback, and De Facto and makes the data comptabile with the merged collection. ([Requesting and formatting in CSV new data from Science Feedback and De Facto](https://github.com/medialab/spsm-database#request-new-data)) The program `merge.py` writes its results either to the CSV file `misinformation_sources_<TODAY>.csv` or, if that already exists and to avoid overwriting data, a similar path with a version number appended to the end. In the file, each row corresponds to one source of misinformation online, whose unique identifier (`id`) is a hash of its normalized URL.
 
-The first time `merge.py` adds a new source of misinformation to the collection, the shared fields `url`, `date`, `title`, and `review` are populated with data mapped from the original dataset. In addition to mapping data, each new entry also has the created fields `sources`, `normalized_url`, and `normalized_url_hash`. The normalized URL and its hash protect against duplicates and provide a unique ID for each source, respectively.
+To update the collection, use `merge.py`.
+ ```shell
+ $ python merge.py --dataset [condor|science|defacto] --file <NEW DATA> --length <COUNT OF LINES IN FILE> --collection <PREVIOUSLY COMPILED MERGED COLLECTION>
+ ```
+### options
+1. `--dataset` [required] : `condor`, `science`, or `defacto`
+2. `--file` [required] : file path to the dataset containing data you wish to merge into the collection
+3. `--length` [optional] : length of the dataset; if provided, it allows for a loading bar
+4. `--collection` [optional] : file path to an existing collection, which you wish to update
 
-If two different datasets have the same URL, fields from the second dataset are added to the collection if the second dataset has not already contributed to information about that particular source of misinformation. The `sources` field is then updated to include the second dataset. Multiple datasets are concatenated in the `sources` field using a pipe, i.e. "`condor|science`".
+So as not to overwrite data in an existing collection of misinformation sources, `merge.py` will write results to a different path than that provided with the option `--collection`.
 
-While only a portion of a dataset's data is mapped to shared fields in the collection, the collection of misinformation nevertheless preserves the original data. To all the original fieldnames, the program `merge.py` adds a prefix signifying the relevant dataset. The program then reproduces the original data in the dataset's relevant column. For example, while Science Feedback's field `title` is both mapped to the shared field `title` and reproduced in the field `science_title`, data from Science Feedback's field `claimReveiwed`, which is not mapped to a shared field, is nevertheless preserved in the collection's field `science_claimReviewed`. All data data fields in the diagram below are preserved in the collection.
-
+## Dataset Fields: Prefix on Original Fieldname and Mapping to Shared Fields
  ```mermaid
 flowchart LR
 
 subgraph condor
-    url_rid
-    clean_url
-    share_title
-    first_post_time
-    tpfc_rating
-    tpfc_first_fact_check
-    public_shares_top_country
+    url_rid["condor_url_rid\n(orig. url_rid)"]
+    clean_url["condor_clean_url\n(orig. clean_url)"]
+    share_title["condor_share_title\n(orig. share_title)"]
+    first_post_time["condor_first_post_time\n(orig. first_post_time)"]
+    tpfc_rating["condor_tpfc_rating\n(orig. tpfc_rating)"]
+    tpfc_first_fact_check["condor_tpfc_first_fact_check\n(orig. tpfc_first_fact_check)"]
+    public_shares_top_country["condor_public_shares_top_country\n(orig. public_shares_top_country)"]
 end
 
-mainurl[url]---dfurl---sfurl---clean_url
+normalized_url---|normalized|dfurl---|normalized|sfurl---|normalized|clean_url
 maindate[date]---datePublished---publishedDate---first_post_time
 maintitle[title]---dfclaimReviewed---title---share_title
 mainreview[review]---alternateName---urlReviewAlternateName---tpfc_rating
@@ -33,42 +40,43 @@ mainreview[review]---alternateName---urlReviewAlternateName---tpfc_rating
 subgraph shared fields
     mainid[id]
     sources
+    normalized_url
+    normalized_url_hash
     maintitle
-    mainurl
     maindate
     mainreview
 end
 
 subgraph science feedback
-    urlContentId
-    appearanceId
-    sfurl[url]
-    sfclaimReviewed[claimReviewed]
-    publishedDate
-    publisher
-    title
-    urlReviewAlternateName
-    urlReviewRatingValue
-    reviewStandardForm
-    reviewsRatingValue
+    urlContentId["science_urlContentId\n(orig. urlContentId)"]
+    appearanceId["science_appearanceId\n(orig. appearanceId)"]
+    sfurl["science_url\n(orig. url)"]
+    sfclaimReviewed["science_claimReviewed\n(orig. claimReviewed)"]
+    publishedDate["science_publishedDate\n(orig. publishedDate)"]
+    publisher["science_publisher\n(orig. publisher)"]
+    title["science_title\n(orig. title)"]
+    urlReviewAlternateName["science_urlReviewAlternateName\n(orig. urlReviewAlternateName)"]
+    urlReviewRatingValue["science_urlReviewRatingValue\n(orig. urlReviewRatingValue)"]
+    reviewStandardForm["science_reviewStandardForm\n(orig. reviewStandardForm)"]
+    reviewsRatingValue["science_reviewsRatingValue\n(orig. reviewsRatingValue)"]
 end
 
 subgraph de facto
-    id
-    dfurl[url]
-    dfclaimReviewed[claimReviewed]
-    datePublished
-    alternateName
-    themes
-    tags
-    ratingValue
+    id["defacto_id\n(orig. id)"]
+    dfurl["defacto_url\n(orig. url)"]
+    dfclaimReviewed["defacto_claimReviewed\n(orig. claimReviewed)"]
+    datePublished["defacto_datePublished\n(orig. datePublished)"]
+    alternateName["defacto_alternateName\n(orig. alternateName)"]
+    themes["defacto_themes\n(orig. themes)"]
+    tags["defacto_tags\n(orig. tags)"]
+    ratingValue["defacto_ratingValue\n(orig. ratingValue)"]
 end
  ```
-
+ 
 
 # Request new data
 Both programs `defacto.py` (De Facto) and `science.py` (Science Feedback) yield CSV files whose names can be customized with the option `--outfile`. 
-By default, the programs' CSV files are titled `defacto_<DATE>.csv` and `science-feedback_<DATE>.csv`, respectively, with the day's date in the file name.
+By default, the programs' CSV files are titled `defacto_<TODAY>.csv` and `science-feedback_<TODAY>.csv`, respectively, with the day's date in the file name.
 
 A JSON configuration file must provide credentials necessary to request data from De Facto and Science Feedback. De Facto's database is accessed with 
 a protected endpoint. Science Feedback's API requires a token. Provide both of these data in the JSON configuration file.
