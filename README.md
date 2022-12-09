@@ -107,7 +107,68 @@ Call the function `defacto.py` and provide a path to the configuration file.
 ```shell
 $ python defacto.py [CONFIG.json]
 ```
-
+### Flattened CSV
 |id|themes|tags|claim-review_claimReviewed|claim-review_itemReviewed_datePublished|claim-review_itemReviewed_appearance_url|claim-review_itemReviewed_appearance_headline|claim-review_reviewRating_ratingValue|claim-review_reviewRating_alternateName|
 |--|--|--|--|--|--|--|--|--|
 |Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels|Politique\|Société|France|Le contrôle du FIJAIS n'est plus exigé pour l'agrément d'assistant maternel|2022-12-03T00:00:00.00+01:00|https://twitter.com/RomanAude/status/1599114199145193472||1|Faux|
+
+### JSON response from database
+```python
+{
+        "id": "Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels",
+        "title": "Non, un arr\u00eat\u00e9 n'autorise pas \"des p\u00e9docriminels\" \u00e0 devenir \"assistants maternels\"",
+        "link": "https://defacto-observatoire.fr/Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels/",
+        "channel": {
+            "id": "Medias/Factuel",
+            "name": "Factuel - AFP",
+            "url": "https://factuel.afp.com/"
+        },
+        "chapeau": "<p...</p>",
+        "published": "2022-12-09T09:29:19.82+01:00",
+        "authors": "XXXXXXXXXXX",
+        "themes": [
+            "Politique",
+            "Soci\u00e9t\u00e9"
+        ],
+        "tags": [
+            "France"
+        ],
+        "medias": [
+            {
+                "url": "https://defacto-observatoire.fr/download/Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels/WebHome/0599d2e7818664e9750e1d01e6a34fa5a3ee993c-ipad.jpg?rev=1.1"
+            }
+        ],
+        "claim-review": {
+            "@context": "https://schema.org",
+            "@type": "ClaimReview",
+            "url": "https://defacto-observatoire.fr/Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels/",
+            "datePublished": "2022-12-09T09:29:19.82+01:00",
+            "author": {
+                "type": "Organization",
+                "name": "XXXXXXXXXXX"
+            },
+            "claimReviewed": "Le contr\u00f4le du FIJAIS n'est plus exig\u00e9 pour l'agr\u00e9ment d'assistant maternel",
+            "itemReviewed": {
+                "@type": "Claim",
+                "author": {
+                    "@type": "Person",
+                    "name": "Sources multiples"
+                },
+                "datePublished": "2022-12-03T00:00:00.00+01:00",
+                "appearance": {
+                    "url": "https://twitter.com/RomanAude/status/1599114199145193472",
+                    "headline": ""
+                }
+            },
+            "reviewRating": {
+                "@type": "Rating",
+                "ratingValue": "1",
+                "bestRating": "5",
+                "worstRating": "1",
+                "alternateName": "Faux"
+            }
+        },
+        "original-url": "https://factuel.afp.com/doc.afp.com.32ZB7NR",
+        "body": "<div><p>...</p>"
+    },
+```
