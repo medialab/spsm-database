@@ -6,7 +6,7 @@ When downloading this repository, create a virtual Python environment with the p
 
 # Collection 1: Misinformation Sources
 
-The collection holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data collected from Condor, Science Feedback, and De Facto and makes the data comptabile with the merged collection. ([Requesting and formatting in CSV new data from Science Feedback and De Facto](https://github.com/medialab/spsm-database#request-new-data)) The program `merge.py` writes its results either to the CSV file `misinformation_sources_<TODAY>.csv` or, if that already exists and to avoid overwriting data, a similar path with a version number appended to the end. In the file, each row corresponds to one source of misinformation online, whose unique identifier (`id`) is a hash of its normalized URL.
+The collection holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data collected from Condor, Science Feedback, and De Facto and makes the data comptabile with the merged collection. ([Requesting and flattening to CSV new data from Science Feedback and De Facto](https://github.com/medialab/spsm-database#supporting-datasets))
 
 To update the collection, use `merge.py`.
  ```shell
@@ -18,116 +18,96 @@ To update the collection, use `merge.py`.
 3. `--length` [optional] : length of the dataset; if provided, it allows for a loading bar
 4. `--collection` [optional] : file path to an existing collection, which you wish to update
 
-So as not to overwrite data in an existing collection of misinformation sources, `merge.py` will write results to a different path than that provided with the option `--collection`.
 
-## Dataset Fields: Prefix on Original Fieldname and Mapping to Shared Fields
- ```mermaid
-flowchart LR
 
-subgraph condor
-    url_rid["condor_url_rid\n(orig. url_rid)"]
-    clean_url["condor_clean_url\n(orig. clean_url)"]
-    share_title["condor_share_title\n(orig. share_title)"]
-    first_post_time["condor_first_post_time\n(orig. first_post_time)"]
-    tpfc_rating["condor_tpfc_rating\n(orig. tpfc_rating)"]
-    tpfc_first_fact_check["condor_tpfc_first_fact_check\n(orig. tpfc_first_fact_check)"]
-    public_shares_top_country["condor_public_shares_top_country\n(orig. public_shares_top_country)"]
-end
-
-normalized_url---|normalized|dfurl---|normalized|sfurl---|normalized|clean_url
-maindate[date]---datePublished---publishedDate---first_post_time
-maintitle[title]---dfclaimReviewed---title---share_title
-mainreview[review]---alternateName---urlReviewAlternateName---tpfc_rating
-
-subgraph shared fields
-    mainid[id]
-    sources
-    normalized_url
-    normalized_url_hash
-    maintitle
-    maindate
-    mainreview
-end
-
-subgraph science feedback
-    urlContentId["science_urlContentId\n(orig. urlContentId)"]
-    appearanceId["science_appearanceId\n(orig. appearanceId)"]
-    sfurl["science_url\n(orig. url)"]
-    sfclaimReviewed["science_claimReviewed\n(orig. claimReviewed)"]
-    publishedDate["science_publishedDate\n(orig. publishedDate)"]
-    publisher["science_publisher\n(orig. publisher)"]
-    title["science_title\n(orig. title)"]
-    urlReviewAlternateName["science_urlReviewAlternateName\n(orig. urlReviewAlternateName)"]
-    urlReviewRatingValue["science_urlReviewRatingValue\n(orig. urlReviewRatingValue)"]
-    reviewStandardForm["science_reviewStandardForm\n(orig. reviewStandardForm)"]
-    reviewsRatingValue["science_reviewsRatingValue\n(orig. reviewsRatingValue)"]
-end
-
-subgraph de facto
-    id["defacto_id\n(orig. id)"]
-    dfurl["defacto_url\n(orig. url)"]
-    dfclaimReviewed["defacto_claimReviewed\n(orig. claimReviewed)"]
-    datePublished["defacto_datePublished\n(orig. datePublished)"]
-    alternateName["defacto_alternateName\n(orig. alternateName)"]
-    themes["defacto_themes\n(orig. themes)"]
-    tags["defacto_tags\n(orig. tags)"]
-    ratingValue["defacto_ratingValue\n(orig. ratingValue)"]
-end
- ```
- 
-
-# Request new data
-Both programs `defacto.py` (De Facto) and `science.py` (Science Feedback) yield CSV files whose names can be customized with the option `--outfile`. 
-By default, the programs' CSV files are titled `defacto_<TODAY>.csv` and `science-feedback_<TODAY>.csv`, respectively, with the day's date in the file name.
-
-A JSON configuration file must provide credentials necessary to request data from De Facto and Science Feedback. De Facto's database is accessed with 
-a protected endpoint. Science Feedback's API requires a token. Provide both of these data in the JSON configuration file.
+# Supporting Datasets
+To access De Facto and/or Science Feedback's databases, update the configuration file with the relevant confidential information.
 
 `config.json`
 ```json
 {
     "science-feedback":{
-        "token": "TOKEN",
-        "endpoint": "https://api.feedback.org/appearances/content/"
+        "token": "XXXXXXXX-XXXXXXXX"
     },
-    "defacto":"ENDPOINT"
+    "defacto": {
+        "endpoint": "https://XXXXXXXX"
+    }
 }
 ```
 ---
 
-## De Facto
+## **Science Feedback**
+### Step 1. Request appearances within a date range
+When you query the database for all appearances published within a date range (i.e. `--start 2010-01-01` `--end 2010-12-31`), the API returns pages of results. The Click command `request` calls a certain number of those pages (i.e. `--pages 50` ), wherein each page contains a maximum of 100 results matching the query.
+
+
 ```shell
-$ python defacto.py config.json
+$ python science.py [CONFIG.json] request --start [YYYY-MM-DD] --end [YYYY-MM-DD] --pages [INT]
 ```
-yields columns: `["id", "claimReviewed", "themes", "tags", "datePublished", "url", "ratingValue", "alternateName"]`
+
+### Step 2. Request information about appearances and flatten to CSV
+The Click command `flatten` reads all the appearances previously requested and saved to the default folder. For each appearance, the command requests extra information and flattens that data into a CSV.
+```shell
+$ python science.py [CONFIG.json] flatten
+```
+
+### Appearance requested with the command `request`:
+```python
+{
+        "id": "TL74M",
+        "publishedDate": "2022-10-29T20:22:35Z",
+        "updatedDate": "2022-12-07T09:03:24.396934Z",
+        "url": "https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html",
+        "urlContentId": "T9744"
+    },
+```
+
+### Extra information about the appearance, requested and parsed in the command `flatten`
+```python
+{'claimReviewed': 'COVID-19 vaccines are linked to abnormal blood clotting, '
+                  'sudden deaths, world depopulation',
+ 'id': 'TL74M',
+ 'publishedDate': '2022-10-29T20:22:35Z',
+ 'publisher': None,
+ 'reviews': [{'author': 'Health Feedback',
+              'reviewRatings': [{'alternateName': 'Incorrect',
+                                 'bestRating': 5,
+                                 'ratingValue': 1.0,
+                                 'standardForm': 'Incorrect',
+                                 'worstRating': 1}],
+              'reviewUrl': 'https://healthfeedback.org/claimreview/the-film-died-suddenly-rehashes-debunked-claims-conspiracy-theories-covid-19-vaccines/'}],
+ 'updatedDate': '2022-12-07T09:03:24.396934Z',
+ 'url': 'https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html',
+ 'urlReviews': [{'reviewRatings': [{'alternateName': 'False',
+                                    'bestRating': 5,
+                                    'ratingValue': 1.0,
+                                    'worstRating': 1}]}]}
+```
+
+### Flattend CSV of information about the appearance [OUTPUT]
+|id|urlContentId|url|claimReviewed|publishedDate|publisher|reviews_author|reviews_reviewRatings_ratingValue|reviews_reviewRatings_standardForm|urlReviews_reviewRatings_alternateName|urlReviews_reviewRatings_ratingValue|
+|--|--|--|--|--|--|--|--|--|--|--|
+TL74M|T9744|https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|"COVID-19 vaccines are linked to abnormal blood clotting, sudden deaths, world depopulation"|2022-10-29T20:22:35Z||Health Feedback|1.0|Incorrect|False|1.0
 
 ---
 
-## Science Feedback
-```shell
-$ python science.py appearances/ config.json
-```
-yields columns: `["urlContentId", "appearanceId", "claimReviewed", "publishedDate", "publisher", "url", "title", "urlReviewAlternateName", "urlReviewRatingValue", "reviewsStandardForm", "reviewsRatingValue"]`
+## **Condor**
+The Condor dataset is already flattened to a CSV and can be immediately incorporated.
 
-### *Note*
+|url_rid|clean_url|first_time_post|share_title|tpfc_rating|tpfc_first_fact_check|public_shares_top_country|
+|--|--|--|--|--|--|--|
+tqyasrlx8u5etbv|https://www.youtube.com/watch?v=B_5Wk10dO-Q|2021-04-09 06:40:00.000|"BREAKING NEWS TODAY APRIL 9, 2021 PRES DUTERTE TINAWAGAN SI MARCOS PINAUPO SA MALACANANG LENI IYAK"|fact checked as false|2021-04-14 02:10:00.000|PH|
 
-*`science.py` loops through a directory of saved responses from Science Feedback's API. To populate this directory with the right kind of data, 
-call pages of appearances from Science Feedback's API and store each response as a JSON file. Large quantities of appearances can be called from Science Feedback's database by appending parameters to the API's endpoint. Below is an example of how to request pages of appearances and save each page to a file in a directory, i.e. `./appearances/`.*
-
-```shell
-TOKEN="..."
-
-i=0
-startPublishedDate="2000-01-01"
-endPublishedDate="2022-12-01"
-
-mkdir -p appearances
-
-while [ $i -le 50 ]
-do
-    curl -H "X-Access-Tokens: ${TOKEN}" "api.feedback.org/appearances?page=${i}&paginator=100&startPublishedDate=${startPublishedDate}&endPublishedDate=${endPublishedDate}" > appearances/page_${i}.json
-    ((i++))
-done
-```
 ---
+## **De Facto**
+### Step 1. Request and flatten data
 
+Call the function `defacto.py` and provide a path to the configuration file.
+
+```shell
+$ python defacto.py [CONFIG.json]
+```
+
+|id|themes|tags|claim-review_claimReviewed|claim-review_itemReviewed_datePublished|claim-review_itemReviewed_appearance_url|claim-review_itemReviewed_appearance_headline|claim-review_reviewRating_ratingValue|claim-review_reviewRating_alternateName|
+|--|--|--|--|--|--|--|--|--|
+|Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels|Politique\|Société|France|Le contrôle du FIJAIS n'est plus exigé pour l'agrément d'assistant maternel|2022-12-03T00:00:00.00+01:00|https://twitter.com/RomanAude/status/1599114199145193472||1|Faux|
