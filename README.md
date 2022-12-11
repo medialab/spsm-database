@@ -6,17 +6,33 @@ When downloading this repository, create a virtual Python environment with the p
 
 # Collection 1: Misinformation Sources
 
-The collection holds a set of unique URLs, which point to sources of verified misinformation online. The collection is created and updated using the program `merge.py`. The program parses data collected from Condor, Science Feedback, and De Facto and makes the data comptabile with the merged collection. ([Requesting and flattening to CSV new data from Science Feedback and De Facto](https://github.com/medialab/spsm-database#supporting-datasets))
+A collection of unique URLs, which point to sources of verified misinformation online.
 
-To update the collection, use `merge.py`.
  ```shell
- $ python merge.py --dataset [condor|science|defacto] --file <NEW DATA> --length <COUNT OF LINES IN FILE> --collection <PREVIOUSLY COMPILED MERGED COLLECTION>
+ $ python merge.py --dataset [condor|science|defacto] --filepath PATH/TO/DATA.csv --length INTEGER --merged-table PATH/TO/EXISTING/MERGED-TABLE.csv
  ```
 ### options
 1. `--dataset` [required] : `condor`, `science`, or `defacto`
-2. `--file` [required] : file path to the dataset containing data you wish to merge into the collection
-3. `--length` [optional] : length of the dataset; if provided, it allows for a loading bar
-4. `--collection` [optional] : file path to an existing collection, which you wish to update
+2. `--filepath` [required] : path to the data you wish to merge into the table
+3. `--length` [optional] : length of the data file (if provided, it allows for a loading bar)
+4. `--merged-table` [optional] : path to the merged table you wish to update
+
+The merged table preserves every column from the incoming dataset (see Supporting Datasets below) and aggregates data by the URL's normalization.
+
+Cases
+- If two or more datasets contain the same URL, their data is written to the same row and in the dataset's dedicated columns.
+
+    |url_id|sources|normalized_url|...|condor_url_rid|...|science_url|...|
+    |--|--|--|--|--|--|--|--|
+    |4c1c97346dd51aa32218c81bf2df45d6|science\|condor|rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|...|https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st|...|https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|
+
+- If a dataset registers a URL under multiple IDs (i.e. Science Feedback reports multiple appearances of the same URL), the data is aggregated in one row.
+
+    |url_id|sources|...|science_id|science_urlContentId|...|
+    |--|--|--|--|--|--|
+    |d647d2b6e990e637db472c6262cbd7b7|science|...|TL74M\|TL74K|T9744\|T9744|
+
+
 
 
 
