@@ -6,6 +6,8 @@ When downloading this repository, create a virtual Python environment with the p
 
 # Collection 1: Misinformation Sources
 
+## Merge Data
+
 A collection of unique URLs, which point to sources of verified misinformation online.
 
  ```shell
@@ -32,8 +34,19 @@ Cases
     |--|--|--|--|--|--|
     |d647d2b6e990e637db472c6262cbd7b7|science|...|TL74M\|TL74K|T9744\|T9744|
 
+## Archive Web Pages
 
+From the merged table, select the 1st (`url_id`) and 3rd column (`normalized_url`) as the archived web page's identifying hash and its URL, respectively. 
 
+|url_id|sources|normalized_url|...|
+|--|--|--|--|
+|4c1c97346dd51aa32218c81bf2df45d6|...|rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|...|
+
+Objective:
+- Download the HTML and source files for each web page.
+- Enrich the merged table with the following columns:
+    - `archive_timestamp` : the time at which `wget` downloaded the HTML,
+    - default columns added with `minet` CLI command `fetch`.
 
 
 # Supporting Datasets
