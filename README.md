@@ -136,7 +136,7 @@ Call the function `defacto.py` and provide a path to the configuration file.
 ```shell
 $ python defacto.py [CONFIG.json]
 ```
-### Flattened CSV
+### Flattened CSV [OUTPUT]
 |id|themes|tags|claim-review_claimReviewed|claim-review_itemReviewed_datePublished|claim-review_itemReviewed_appearance_url|claim-review_itemReviewed_appearance_headline|claim-review_reviewRating_ratingValue|claim-review_reviewRating_alternateName|
 |--|--|--|--|--|--|--|--|--|
 |Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels|Politique\|Société|France|Le contrôle du FIJAIS n'est plus exigé pour l'agrément d'assistant maternel|2022-12-03T00:00:00.00+01:00|https://twitter.com/RomanAude/status/1599114199145193472||1|Faux|
