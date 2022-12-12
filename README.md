@@ -8,7 +8,7 @@ When downloading this repository, create a virtual Python environment with the p
 
 ## Merge Data
 
-A collection of unique URLs, which point to sources of verified misinformation online.
+Merge data from the 3 data sources into one meta table, which aggregates data by URL.
 
  ```shell
  $ python merge.py --dataset [condor|science|defacto] --filepath PATH/TO/DATA.csv --length INTEGER --merged-table PATH/TO/EXISTING/MERGED-TABLE.csv
