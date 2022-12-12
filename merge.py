@@ -8,7 +8,7 @@ from ural import normalize_url
 
 from utils import FileNaming
 
-SHARED_FIELDS = ["url_id", "sources", "normalized_url"]
+SHARED_FIELDS = ["url_id", "sources", "normalized_url", "archive_timestamp"]
 DEFACTO_FIELDS = ['id', 'themes', 'tags', 'claim-review_claimReviewed', 'claim-review_itemReviewed_datePublished', 'claim-review_itemReviewed_appearance_url', 'claim-review_itemReviewed_appearance_headline', 'claim-review_reviewRating_ratingValue', 'claim-review_reviewRating_alternateName']
 SCIENCE_FIELDS = ['id', 'urlContentId', 'url', 'claimReviewed', 'publishedDate', 'publisher', 'reviews_author', 'reviews_reviewRatings_ratingValue', 'reviews_reviewRatings_standardForm', 'urlReviews_reviewRatings_alternateName', 'urlReviews_reviewRatings_ratingValue']
 CONDOR_FIELDS = ["url_rid", "clean_url", "first_post_time", "share_title", "tpfc_rating", "tpfc_first_fact_check", "public_shares_top_country"]
