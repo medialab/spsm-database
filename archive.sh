@@ -6,6 +6,7 @@ ARCHIVEDIR=$2  # Directory in which the archive will be created
 mkdir -p $ARCHIVEDIR  # Make the directory if it doesn't already exist
 
 xsv select archive_url,url_id $DATAFILE |
+  xsv sort -u -s url_id |
   xsv behead |
   while read line; do 
     archive_url=$(echo $line | xsv select 1) # assigne variable for the url
