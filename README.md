@@ -40,7 +40,7 @@ first positional argument : name of the file in which are the urls of the webpag
 second positional argument : name of the folder (to create or not) in which the saved web page will be stored. 
    
    - arhive online all of the web page with `webarchive`
-        - save the web page online 
+        - save online the web page online 
         - can retrieve the saved webpage afterwards
    
    - archive localy all of the web page with `wget`
