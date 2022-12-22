@@ -79,6 +79,7 @@ def main(dataset:str, filepath:str, length:str, merged_table:str):
             if row[fields.date_column]:
                 row_date = datetime.strptime(row[fields.date_column], fields.date_format)
                 row_date = datetime.strptime(row_date.strftime(fields.merged_date_format), fields.merged_date_format)
+                print(row_date)
             else:
                 row_date = None
 
@@ -108,8 +109,8 @@ def main(dataset:str, filepath:str, length:str, merged_table:str):
                             existing_row_date = existing_row["date"]
                     if existing_row_date > row_date:
                         merged_row.update({"date":row_date})
-                else:
-                    merged_row.update({"date":row_date})
+                    else:
+                        merged_row.update({"date":row_date})
 
 
                 # If the dataset's data hasn't been entered into the merged table, update the sources column with it
