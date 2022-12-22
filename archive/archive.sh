@@ -25,13 +25,13 @@ xsv select archive_url,url_id $DATAFILE |
     cd $ARCHIVEDIR  # go into the archive
       # do everything you need to do
       wget -E -H -k -K -p "$archive_url" -o ../$log_dir/${url_id}_log
-      main_pathfile=$(cat ../$log_dir/${url_id}_log | grep "Sauvegarde" | head -1 | tr '«' ',' | tr '»' ' ' | cut -d',' -f2)  
+      main_pathfile=$(cat ../$log_dir/${url_id}_log | grep "Sauvegarde" | head -1)  
       echo "url: ${archive_url}" # url of the fake news 
       echo "logfile: ${logfile}" # hash 
       echo "path_html: ${main_pathfile}" # path of the saved html
       # echo "timestamp:${timestamp}" # timestamp of the wget command but alreadw in the logfile
       # echo "URL archived at: ${timestamp}" >> logfile #the timestamp is already in the logfile
-      cat ../$log_dir/${url_id}_log | grep "Sauvegarde" | tr '«' ',' | tr '»' ' ' | cut -d',' -f2 > ../$path_dir/${url_id}_paths
+      cat ../$log_dir/${url_id}_log | grep "Sauvegarde" > ../$path_dir/${url_id}_paths
       echo "path_file: ${url_id}_paths" 
       echo ""
 
