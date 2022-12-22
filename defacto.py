@@ -1,16 +1,20 @@
-import requests
-import json
 import csv
-import click
-from ural import is_url
-from tqdm.auto import tqdm
+import json
+import os
 
+import click
+import requests
+from minet.utils import md5
+from tqdm.auto import tqdm
+from ural import is_url, normalize_url
 
 yellow = "\033[1;33m"
 green = "\033[0;32m"
 reset = "\033[0m"
 
 from utils import FileNaming
+
+DEFACTO_FIELDS = ['id', 'hash', 'normalized_url', 'themes', 'tags', 'claim-review_claimReviewed', 'claim-review_itemReviewed_datePublished', 'claim-review_itemReviewed_appearance_url', 'claim-review_itemReviewed_appearance_headline', 'claim-review_reviewRating_ratingValue', 'claim-review_reviewRating_alternateName']
 
 
 class ClaimData:
@@ -21,6 +25,7 @@ class ClaimData:
         self.claimReviewed = None
         self.datePublished = None
         self.url = None
+        self.hash = None
         self.headline = None
         self.ratingValue = None
         self.alternateName = None
@@ -30,6 +35,8 @@ class ClaimData:
             if claim["claim-review"].get("itemReviewed"):
                 self.datePublished = claim["claim-review"]["itemReviewed"].get("datePublished")
                 self.url = claim["claim-review"]["itemReviewed"]["appearance"].get("url")
+                self.normalized_url = normalize_url(self.url)
+                self.hash = md5(self.normalized_url)
                 self.headline = claim["claim-review"]["itemReviewed"]["appearance"].get("headline")
 
         if claim.get("claim-review") and claim["claim-review"].get("reviewRating"):
@@ -39,6 +46,8 @@ class ClaimData:
     def mapping(self):
         return {
             "id":self.id,
+            "hash":self.hash,
+            "normalized_url":self.normalized_url,
             "themes":self.themes,
             "tags":self.tags,
             "claim-review_claimReviewed":self.claimReviewed,
@@ -61,6 +70,8 @@ def cli(config):
             raise ValueError("The configuration file does not contain a De Facto endpoint.")
 
     # Name the outfile
+    if not os.path.isdir("data"):
+        os.mkdir("data")
     outfile_path = FileNaming(title="df_flattened", dir="data").todays_date
 
     # Request data from the database
@@ -73,7 +84,7 @@ def cli(config):
         raise RuntimeError("The request to De Facto's database failed.")
 
     with open(outfile_path, "w", encoding="utf-8") as f:
-        fieldnames = ["id", "themes", "tags", "claim-review_claimReviewed", "claim-review_itemReviewed_datePublished", "claim-review_itemReviewed_appearance_url", "claim-review_itemReviewed_appearance_headline", "claim-review_reviewRating_ratingValue", "claim-review_reviewRating_alternateName"]
+        fieldnames = ["id", "hash", "normalized_url", "themes", "tags", "claim-review_claimReviewed", "claim-review_itemReviewed_datePublished", "claim-review_itemReviewed_appearance_url", "claim-review_itemReviewed_appearance_headline", "claim-review_reviewRating_ratingValue", "claim-review_reviewRating_alternateName"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
 

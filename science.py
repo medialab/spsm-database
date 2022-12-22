@@ -6,12 +6,14 @@ from datetime import date
 
 import click
 import requests
+from minet.utils import md5
 from tqdm.auto import tqdm
-from ural import is_url
+from ural import is_url, normalize_url
 
 from utils import FileNaming
 
 appearances_directory = os.path.join("data", "sf_appearances")
+SCIENCE_FIELDS = ['id', 'hash', 'normalized_url', 'urlContentId', 'url', 'claimReviewed', 'publishedDate', 'publisher', 'reviews_author', 'reviews_reviewRatings_ratingValue', 'reviews_reviewRatings_standardForm', 'urlReviews_reviewRatings_alternateName', 'urlReviews_reviewRatings_ratingValue']
 
 
 @click.group()
@@ -37,6 +39,8 @@ def request(ctx, start, end, pages):
     if not start_date < end_date:
         raise ValueError("Start date does not precede end date.")
 
+    if not os.path.isdir("data"):
+        os.mkdir("data")
     if not os.path.isdir(appearances_directory):
         os.mkdir(appearances_directory)
 
@@ -51,9 +55,15 @@ def request(ctx, start, end, pages):
             time.sleep(1)
             response = requests.get(request_url, headers={"X-Access-Tokens": token})
             attempts += 1
+        data = response.json()
+
+        if len(data) == 0:
+            print("The results of this page are empty. The program is exiting.")
+            quit()
+
         outfile = f"page={i}&paginator=100&startPublishedDate={start_date}&endPublishedDate={end_date}"
         with open(os.path.join(appearances_directory, outfile), "w", encoding="utf-8") as f:
-            json.dump(response.json(), f, indent=4)
+            json.dump(data, f, indent=4)
 
 
 @cli.command()
@@ -67,19 +77,20 @@ def flatten(ctx, directory):
         files = os.listdir(directory)
 
     token = ctx.obj["token"]
+    if not os.path.isdir("data"):
+        os.mkdir("data")
     outfile_path = FileNaming(title="sf_flattened", dir="data").todays_date
 
     with open(outfile_path, "w", encoding="utf-8") as f:
-        fieldnames = ["id", "urlContentId", "url", "claimReviewed", "publishedDate", "publisher", "reviews_author", "reviews_reviewRatings_ratingValue", "reviews_reviewRatings_standardForm", "urlReviews_reviewRatings_alternateName", "urlReviews_reviewRatings_ratingValue"]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=SCIENCE_FIELDS)
         writer.writeheader()
 
-        for file in files:
+        for file in tqdm(files, total=len(files), desc="Processing pages of results"):
             with open(os.path.join(directory, file), "r", encoding="utf-8") as opened_file:
 
                 page_results = json.load(opened_file)
 
-                for appearance in tqdm(page_results, total=len(page_results), desc=f"Processing {file}"):
+                for appearance in page_results:
 
                     request_url = "https://api.feedback.org/appearances/{id}".format(id=appearance.get("id"))
                     attempts = 0
@@ -105,6 +116,8 @@ class AppearanceData:
         self.publishedDate = data.get("publishedDate")
         self.publisher = data.get("publisher")
         self.url = data.get("url")
+        self.normalized_url = normalize_url(self.url)
+        self.hash = md5(self.normalized_url)
         self.reviews_author = None
         self.reviews_reviewRatings_ratingValue = None
         self.reviews_reviewRatings_standardForm = None
@@ -127,6 +140,7 @@ class AppearanceData:
         return {
             "id":self.id,
             "urlContentId":urlContentId,
+            "hash":self.hash,
             "claimReviewed":self.claimReviewed,
             "publishedDate":self.publishedDate,
             "publisher":self.publisher,
@@ -134,6 +148,7 @@ class AppearanceData:
             "reviews_reviewRatings_ratingValue":self.reviews_reviewRatings_ratingValue,
             "reviews_reviewRatings_standardForm":self.reviews_reviewRatings_standardForm,
             "url":self.url,
+            "normalized_url":self.normalized_url,
             "urlReviews_reviewRatings_alternateName":self.urlReviews_reviewRatings_alternateName,
             "urlReviews_reviewRatings_ratingValue":self.urlReviews_reviewRatings_ratingValue
         }

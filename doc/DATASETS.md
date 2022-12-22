@@ -63,18 +63,22 @@ $ python science.py [CONFIG.json] flatten
 ```
 
 ### Flattend CSV of information about the appearance [OUTPUT]
-|id|urlContentId|url|claimReviewed|publishedDate|publisher|reviews_author|reviews_reviewRatings_ratingValue|reviews_reviewRatings_standardForm|urlReviews_reviewRatings_alternateName|urlReviews_reviewRatings_ratingValue|
-|--|--|--|--|--|--|--|--|--|--|--|
-TL74M|T9744|https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|"COVID-19 vaccines are linked to abnormal blood clotting, sudden deaths, world depopulation"|2022-10-29T20:22:35Z||Health Feedback|1.0|Incorrect|False|1.0
+|id|hash|normalized_url|urlContentId|url|claimReviewed|publishedDate|publisher|reviews_author|reviews_reviewRatings_ratingValue|reviews_reviewRatings_standardForm|urlReviews_reviewRatings_alternateName|urlReviews_reviewRatings_ratingValue|
+|--|--|--|--|--|--|--|--|--|--|--|--|--|
+TL74M|4c1c97346dd51aa32218c81bf2df45d6|rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|T9744|https://rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|"COVID-19 vaccines are linked to abnormal blood clotting, sudden deaths, world depopulation"|2022-10-29T20:22:35Z||Health Feedback|1.0|Incorrect|False|1.0
 
 ---
 
 ## **Condor**
-The Condor dataset is already flattened to a CSV and can be immediately incorporated.
+The Condor dataset is already flattened to a CSV, though it needs some cleaning with the function `condor.py`.
 
-|url_rid|clean_url|first_time_post|share_title|tpfc_rating|tpfc_first_fact_check|public_shares_top_country|
-|--|--|--|--|--|--|--|
-tqyasrlx8u5etbv|https://www.youtube.com/watch?v=B_5Wk10dO-Q|2021-04-09 06:40:00.000|"BREAKING NEWS TODAY APRIL 9, 2021 PRES DUTERTE TINAWAGAN SI MARCOS PINAUPO SA MALACANANG LENI IYAK"|fact checked as false|2021-04-14 02:10:00.000|PH|
+```shell
+$ python condor.py [DATAFILE]
+```
+
+|url_rid|hash|normalized_url|clean_url|first_time_post|share_title|tpfc_rating|tpfc_first_fact_check|public_shares_top_country|
+|--|--|--|--|--|--|--|--|--|
+tqyasrlx8u5etbv|b48fdf3a326b18ba32dda6bc81829164|youtube.com/watch?v=B_5Wk10dO-Q|https://www.youtube.com/watch?v=B_5Wk10dO-Q|2021-04-09 06:40:00.000|"BREAKING NEWS TODAY APRIL 9, 2021 PRES DUTERTE TINAWAGAN SI MARCOS PINAUPO SA MALACANANG LENI IYAK"|fact checked as false|2021-04-14 02:10:00.000|PH|
 
 ---
 ## **De Facto**
@@ -86,9 +90,9 @@ Call the function `defacto.py` and provide a path to the configuration file.
 $ python defacto.py [CONFIG.json]
 ```
 ### Flattened CSV [OUTPUT]
-|id|themes|tags|claim-review_claimReviewed|claim-review_itemReviewed_datePublished|claim-review_itemReviewed_appearance_url|claim-review_itemReviewed_appearance_headline|claim-review_reviewRating_ratingValue|claim-review_reviewRating_alternateName|
-|--|--|--|--|--|--|--|--|--|
-|Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels|Politique\|Société|France|Le contrôle du FIJAIS n'est plus exigé pour l'agrément d'assistant maternel|2022-12-03T00:00:00.00+01:00|https://twitter.com/RomanAude/status/1599114199145193472||1|Faux|
+|id|hash|normalized_url|themes|tags|claim-review_claimReviewed|claim-review_itemReviewed_datePublished|claim-review_itemReviewed_appearance_url|claim-review_itemReviewed_appearance_headline|claim-review_reviewRating_ratingValue|claim-review_reviewRating_alternateName|
+|--|--|--|--|--|--|--|--|--|--|--|
+|Medias/Factuel/Fact-checks/Non-un-arrete-n-autorise-pas-des-pedocriminels-a-devenir-assistants-maternels|543bf6a13f5037f6a40d8d998f6e47b4|twitter.com/RomanAude/status/1599114199145193472|Politique\|Société|France|Le contrôle du FIJAIS n'est plus exigé pour l'agrément d'assistant maternel|2022-12-03T00:00:00.00+01:00|https://twitter.com/RomanAude/status/1599114199145193472||1|Faux|
 
 ### JSON response from database
 ```python

@@ -1,17 +1,38 @@
 import csv
+from datetime import datetime
 import os
 
 import click
-from minet.utils import md5
 from tqdm.auto import tqdm
-from ural import normalize_url
 
+from condor import CONDOR_FIELDS
+from defacto import DEFACTO_FIELDS
+from science import SCIENCE_FIELDS
 from utils import FileNaming
 
-SHARED_FIELDS = ["url_id", "sources", "normalized_url", "archive_timestamp"]
-DEFACTO_FIELDS = ['id', 'themes', 'tags', 'claim-review_claimReviewed', 'claim-review_itemReviewed_datePublished', 'claim-review_itemReviewed_appearance_url', 'claim-review_itemReviewed_appearance_headline', 'claim-review_reviewRating_ratingValue', 'claim-review_reviewRating_alternateName']
-SCIENCE_FIELDS = ['id', 'urlContentId', 'url', 'claimReviewed', 'publishedDate', 'publisher', 'reviews_author', 'reviews_reviewRatings_ratingValue', 'reviews_reviewRatings_standardForm', 'urlReviews_reviewRatings_alternateName', 'urlReviews_reviewRatings_ratingValue']
-CONDOR_FIELDS = ["url_rid", "clean_url", "first_post_time", "share_title", "tpfc_rating", "tpfc_first_fact_check", "public_shares_top_country"]
+SHARED_FIELDS = ["url_id", "date", "sources", "normalized_url", "archive_url", "archive_timestamp"]
+
+
+class Fields():
+
+    merged_date_format = "%Y-%m-%d %H:%M:%S"
+
+    def __init__(self, dataset):
+        if dataset == "condor":
+            self.url_column = "clean_url"
+            self.id_column = "url_rid"
+            self.date_column = "first_post_time"
+            self.date_format = "%Y-%m-%d %H:%M:%S.%f"
+        elif dataset == "defacto":
+            self.url_column = "claim-review_itemReviewed_appearance_url"
+            self.id_column = "id"
+            self.date_column = "claim-review_itemReviewed_datePublished"
+            self.date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
+        elif dataset == "science":
+            self.url_column = "url"
+            self.id_column = "id"
+            self.date_column = "publishedDate"
+            self.date_format = "%Y-%m-%dT%H:%M:%S%z"
 
 
 @click.command
@@ -22,28 +43,23 @@ CONDOR_FIELDS = ["url_rid", "clean_url", "first_post_time", "share_title", "tpfc
 def main(dataset:str, filepath:str, length:str, merged_table:str):
 
     # Determine which column in the dataset has the URL
-    if dataset == "defacto":
-        url_column = "claim-review_itemReviewed_appearance_url"
-        id_column = "id"
-    elif dataset == "science":
-        url_column = "url"
-        id_column = "id"
-    elif dataset == "condor":
-        url_column = "clean_url"
-        id_column = "url_rid"
-    else:
-        raise ValueError("Dataset must be declared as 'defacto', 'science', or 'condor'.\n")
+    if dataset != "condor" and dataset != "defacto" and dataset != "science":
+        raise ValueError("Dataset must be declared as 'condor', 'defacto', or 'science'.\n")
+    
+    fields = Fields(dataset)
 
     # If adding to a previously merged table, serialize the merged table's rows in an indexed dictionary
-    index_of_existing_merged_table = {}
+    index_of_merged_table = {}
     if merged_table:
         with open(merged_table, "r", encoding="utf-8") as open_merged_table:
             merged_table_reader = csv.DictReader(open_merged_table)
-            [index_of_existing_merged_table.update({row["url_id"]:row}) for row in merged_table_reader]
+            [index_of_merged_table.update({row["url_id"]:row}) for row in merged_table_reader]
     
     # Generate information for new merged table
-    new_merged_table_name = FileNaming("misinformation", "data", "csv").todays_date
-    merged_fieldnames = SHARED_FIELDS+[f"condor_{field}" for field in CONDOR_FIELDS]+[f"science_{field}" for field in SCIENCE_FIELDS]+[f"defacto_{field}" for field in DEFACTO_FIELDS]
+    if not os.path.isdir("output"):
+        os.mkdir("output")
+    new_merged_table_name = FileNaming("misinformation", "output", "csv").todays_date
+    merged_fieldnames = SHARED_FIELDS+[f"condor_{field}" for field in CONDOR_FIELDS if field!="hash" and field!="normalized_url"]+[f"science_{field}" for field in SCIENCE_FIELDS if field!="hash" and field!="normalized_url"]+[f"defacto_{field}" for field in DEFACTO_FIELDS if field!="hash" and field!="normalized_url"]
 
     # Open incoming dataset and new merged table
     with open(filepath, "r", encoding="utf-8") as open_dataset, open(new_merged_table_name, "w", encoding="utf-8") as open_new_merge:
@@ -55,29 +71,46 @@ def main(dataset:str, filepath:str, length:str, merged_table:str):
         writer = csv.DictWriter(open_new_merge, fieldnames=merged_fieldnames)
         writer.writeheader()
 
-        # Prepare an empty set for hashed URLs from the dataset
-        index_of_dataset = set()
-
         for row in generator:
+            row_hash = row['hash']
+            row_normalized_url = row['normalized_url']
+
+            # Format the value in the row's date column
+            if row[fields.date_column]:
+                row_date = datetime.strptime(row[fields.date_column], fields.date_format)
+                row_date = datetime.strptime(row_date.strftime(fields.merged_date_format), fields.merged_date_format)
+            else:
+                row_date = None
 
             # Empty dictionary on which to map updated row data 
-            merged_row = {}
+            merged_row = {"url_id":None, "date":None, "sources":None, "normalized_url":None, "archive_url":None, "archive_timestamp":None}
 
-            # Hash the row's URL and update the set of the dataset's hashed URLS
-            normalized_url = normalize_url(row[url_column])
-            normalized_url_hash = md5(normalized_url)
-            index_of_dataset.add(normalized_url_hash)
+            # If the merged table does not have a URL with this hash, create a new row
+            if row_hash not in index_of_merged_table.keys():
+                [merged_row.update({f"{dataset}_{col}":row[col]}) for col in reader.fieldnames if col!="hash" and col!="normalized_url"]
+                merged_row.update({"url_id":row_hash, "sources":dataset, "normalized_url":row_normalized_url, "archive_url":row[fields.url_column]})
+                index_of_merged_table.update({merged_row["url_id"]:merged_row})
+                if row_date:
+                    merged_row.update({"date":row_date})
 
-            # If the existing merged table does not have a URL with this hash, create a new row
-            if normalized_url_hash not in index_of_existing_merged_table.keys():
-                [merged_row.update({f"{dataset}_{col}":row[col]}) for col in reader.fieldnames]
-                merged_row.update({"url_id":normalized_url_hash, "sources":dataset, "normalized_url":normalized_url})
-                writer.writerow(merged_row)
-            
-            # If the existing merged table has a URL with this hash, update the row
+            # If the merged table has a URL with this hash already, update the row
             else:
-                existing_row = index_of_existing_merged_table[normalized_url_hash]
+
+                existing_row = index_of_merged_table[row_hash]
                 merged_row.update(existing_row)
+
+                # Replace the value in the date column with the earliest datetime object
+                if isinstance(row_date, datetime):
+                    if existing_row.get("date"):
+                        if not isinstance(existing_row["date"], datetime):
+                            existing_row_date = datetime.strptime(existing_row["date"], fields.merged_date_format)
+                        else:
+                            existing_row_date = existing_row["date"]
+                    if existing_row_date > row_date:
+                        merged_row.update({"date":row_date})
+                else:
+                    merged_row.update({"date":row_date})
+
 
                 # If the dataset's data hasn't been entered into the merged table, update the sources column with it
                 if dataset not in existing_row["sources"]:
@@ -85,25 +118,32 @@ def main(dataset:str, filepath:str, length:str, merged_table:str):
                     sources.append(dataset)
                     updated_sources = "|".join(sources)
                     merged_row.update({"sources":updated_sources})
-                else:
-                    dataset_id_col = f"{dataset}_{id_column}"
+
+                # Determine if this exact item (via ID) from the incoming dataset has already been entered in the merged table
+                dataset_id_col = f"{dataset}_{fields.id_column}"
+                if existing_row[dataset_id_col]:
                     ids = existing_row[dataset_id_col].split("|")
-                    # If the row's data hasn't been entered into the merged table, update the the columns dedicated to the dataset
-                    if row[id_column] not in ids:
-                        for col in reader.fieldnames:
-                            merged_col = f"{dataset}_{col}"
-                            data = existing_row[merged_col].split("|")
+                else:
+                    ids = []
+                # If the dataset's item hasn't been entered in the merged table, update the row
+                if row[fields.id_column] not in ids:
+                    cols_to_update = [col for col in reader.fieldnames if col!="hash"and col!="normalized_url"]
+                    for col in cols_to_update:
+                        merged_col = f"{dataset}_{col}"
+                        data = existing_row[merged_col]
+                        if data:
+                            data = data.split("|")
                             data.append(row[col])
                             update = "|".join(data)
-                            merged_row.update({merged_col:update})
-                writer.writerow(merged_row)
-            
-        # Add to the new collection every row from the previous collection that wasn't in / updated from the dataset
-        if merged_table:
-            [writer.writerow(index_of_existing_merged_table[i]) for i in list(set(index_of_existing_merged_table.keys())-index_of_dataset)]
+                        else:
+                            update = row[col]
+                        merged_row.update({merged_col:update})
+                    index_of_merged_table.update({merged_row["url_id"]:merged_row})
 
-    if os.path.isfile(new_merged_table_name):
-        print(f"Wrote new merged table of misinformation sources to file: {new_merged_table_name}")
+        # Write the new aggregation of hashed URLs
+        print(f"Writing new merged table of misinformation sources to file: {new_merged_table_name}")
+        writer.writerows(index_of_merged_table.values())
+
 
 if __name__ == "__main__":
     main()
