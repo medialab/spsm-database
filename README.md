@@ -50,7 +50,7 @@ second positional argument : name of the folder (to create or not) in which the 
         - create a file containing all the paths to the saved elements of the webpage named '$hash_paths'; each file is stored in a folder named 'hash_' followed by the first letter or number of the hash of the url
 
   - fetch HTML with `minet fetch`
-       - leet `minet`update merged table
+       - let `minet`update merged table
 
     \* the column `archive_timestamp` is written and left empty when the merged table is created; it is ready to be used by a new Python script, which should parse the timestamp from the `wget` log and format/write that value into the column
 ---
