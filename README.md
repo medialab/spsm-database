@@ -35,9 +35,10 @@ The project's data sources are:
 ### Archive
 - `bash` (and xsv) script(s) to archive misinformation sources' web pages : 
 
-first positional argument : name of the file in which are the urls of the webpage to save 
-
-second positional argument : name of the folder (to create or not) in which the saved web page will be stored. 
+`archive/`
+```shell
+$ shell archive.sh PATH/TO/DATAFILE
+```
    
    - arhive online all of the web page with `webarchive`
         - save online the web page online 
