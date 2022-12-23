@@ -1,7 +1,6 @@
 import csv
 import json
 import os
-from datetime import datetime
 
 import click
 from elasticsearch import Elasticsearch
