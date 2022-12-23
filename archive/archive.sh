@@ -34,7 +34,7 @@ xsv select archive_url,url_id $DATAFILE |
       echo "path_file: $pathsfile" 
       echo ""
 
-    cd .. # go back to the top-level, where the script is saved / from where the script is deployed
+    cd - # go back to the top-level, where the script is saved / from where the script is deployed
     sleep 4
     done
 
