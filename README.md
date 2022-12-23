@@ -37,7 +37,7 @@ The project's data sources are:
 
 `archive/`
 ```shell
-$ shell archive.sh PATH/TO/DATAFILE
+$ bash archive.sh PATH/TO/DATAFILE
 ```
    
    - arhive online all of the web page with `webarchive`
