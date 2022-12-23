@@ -1,9 +1,6 @@
 #!/bin/bash
 
 DATAFILE=$1  # CSV containing columns "url" and "normalized_url_hash"
-ARCHIVEDIR=$2  # Directory in which the archive will be created
-
-mkdir -p $ARCHIVEDIR  # Make the directory if it doesn't already exist
 
 xsv select archive_url,url_id $DATAFILE |
   xsv sort -u -s url_id |
@@ -13,6 +10,8 @@ xsv select archive_url,url_id $DATAFILE |
     echo "$archive_url"
     url_id=$(echo $line | xsv select 2) # assigne variable for hash 
     first_char=$(echo $url_id | sed -r 's/^(.).*$/\1/')
+    ARCHIVEDIR=$(echo $url_id | sed -r 's/^(.{5}).*$/\1/')
+    mkdir -p $ARCHIVEDIR
     log_dir=log_$first_char
     path_dir=path_$first_char
     mkdir -p $log_dir $path_dir 
