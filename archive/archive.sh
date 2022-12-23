@@ -10,7 +10,8 @@ xsv select archive_url,url_id $DATAFILE |
     echo "$archive_url"
     url_id=$(echo $line | xsv select 2) # assigne variable for hash 
     first_char=$(echo $url_id | sed -r 's/^(.).*$/\1/')
-    ARCHIVEDIR=$(echo $url_id | sed -r 's/^(.{5}).*$/\1/')
+    first_three=$(echo $url_id | sed -r 's/^(.{3}).*$/\1/')
+    ARCHIVEDIR="${first_char}/${first_three}"
     mkdir -p $ARCHIVEDIR
     log_dir=log_$first_char
     path_dir=path_$first_char
@@ -23,14 +24,14 @@ xsv select archive_url,url_id $DATAFILE |
 
     cd $ARCHIVEDIR  # go into the archive
       # do everything you need to do
-      wget -E -H -k -K -p "$archive_url" -o ../$log_dir/${url_id}_log
-      main_pathfile=$(cat ../$log_dir/${url_id}_log | grep "Sauvegarde" | head -1)  
+      wget -E -H -k -K -p "$archive_url" -o ../../$log_dir/${url_id}_log
+      main_pathfile=$(cat ../../$log_dir/${url_id}_log | grep "Sauvegarde" | head -1)  
       echo "url: ${archive_url}" # url of the fake news 
       echo "logfile: ${logfile}" # hash 
       echo "path_html: ${main_pathfile}" # path of the saved html
       # echo "timestamp:${timestamp}" # timestamp of the wget command but alreadw in the logfile
       # echo "URL archived at: ${timestamp}" >> logfile #the timestamp is already in the logfile
-      cat ../$log_dir/${url_id}_log | grep "Sauvegarde" > ../$path_dir/${url_id}_paths
+      cat ../../$log_dir/${url_id}_log | grep "Sauvegarde" > ../../$path_dir/${url_id}_paths
       echo "path_file: ${url_id}_paths" 
       echo ""
 
