@@ -30,7 +30,7 @@ The project's data sources are:
 [Guidelines for updating and archiving the collection of misinformation sources](doc/COLLECTION1.md)
 
 ### Update
-- with [merge.py](merge.py), aggregate URLs from datasets into one central collection of sources of misinformation 
+- with [merge.py](merge-data/merge.py), aggregate URLs from datasets into one central collection of sources of misinformation 
 
 ### Archive
 - `bash` (and xsv) script(s) to archive misinformation sources' web pages : 
