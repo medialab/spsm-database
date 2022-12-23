@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import sys
 import time
 from datetime import date
 
@@ -10,7 +11,10 @@ from minet.utils import md5
 from tqdm.auto import tqdm
 from ural import is_url, normalize_url
 
-from utils import FileNaming
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from src.utils import FileNaming
 
 appearances_directory = os.path.join("data", "sf_appearances")
 SCIENCE_FIELDS = ['id', 'hash', 'normalized_url', 'urlContentId', 'url', 'claimReviewed', 'publishedDate', 'publisher', 'reviews_author', 'reviews_reviewRatings_ratingValue', 'reviews_reviewRatings_standardForm', 'urlReviews_reviewRatings_alternateName', 'urlReviews_reviewRatings_ratingValue']

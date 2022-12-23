@@ -1,6 +1,6 @@
 import csv
-from datetime import datetime
 import os
+import sys
 
 import click
 from minet.utils import md5
@@ -10,7 +10,10 @@ yellow = "\033[1;33m"
 green = "\033[0;32m"
 reset = "\033[0m"
 
-from utils import FileNaming
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from src.utils import FileNaming
 
 CONDOR_FIELDS = ["url_rid", 'hash', 'normalized_url', "clean_url", "first_post_time", "share_title", "tpfc_rating", "tpfc_first_fact_check", "public_shares_top_country"]
 

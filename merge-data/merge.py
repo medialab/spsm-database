@@ -1,14 +1,18 @@
 import csv
-from datetime import datetime
 import os
+import sys
+from datetime import datetime
 
 import click
 from tqdm.auto import tqdm
 
-from condor import CONDOR_FIELDS
-from defacto import DEFACTO_FIELDS
-from science import SCIENCE_FIELDS
-from utils import FileNaming
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from collect_data.condor import CONDOR_FIELDS
+from collect_data.defacto import DEFACTO_FIELDS
+from collect_data.science import SCIENCE_FIELDS
+from src.utils import FileNaming
 
 SHARED_FIELDS = ["url_id", "date", "sources", "normalized_url", "archive_url", "archive_timestamp"]
 
@@ -79,7 +83,6 @@ def main(dataset:str, filepath:str, length:str, merged_table:str):
             if row[fields.date_column]:
                 row_date = datetime.strptime(row[fields.date_column], fields.date_format)
                 row_date = datetime.strptime(row_date.strftime(fields.merged_date_format), fields.merged_date_format)
-                print(row_date)
             else:
                 row_date = None
 

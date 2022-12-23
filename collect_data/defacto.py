@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import sys
 
 import click
 import requests
@@ -12,7 +13,10 @@ yellow = "\033[1;33m"
 green = "\033[0;32m"
 reset = "\033[0m"
 
-from utils import FileNaming
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+from src.utils import FileNaming
 
 DEFACTO_FIELDS = ['id', 'hash', 'normalized_url', 'themes', 'tags', 'claim-review_claimReviewed', 'claim-review_itemReviewed_datePublished', 'claim-review_itemReviewed_appearance_url', 'claim-review_itemReviewed_appearance_headline', 'claim-review_reviewRating_ratingValue', 'claim-review_reviewRating_alternateName']
 
