@@ -30,14 +30,73 @@ Cases
 
 ## Archive Web Pages
 
-From the merged table, select the 1st (`url_id`) and 3rd column (`normalized_url`) as the archived web page's identifying hash and its URL, respectively. 
+- Download web pages' content and send the pages to be archived at the Internet Archive; record the log and paths of downloaded files.
 
-|url_id|sources|normalized_url|...|
-|--|--|--|--|
-|4c1c97346dd51aa32218c81bf2df45d6|...|rumble.com/v1q3s40-died-suddenly-official-trailer-streaming-november-21st.html|...|
+from the subdirectory `archive/`
+```shell
+$ bash archive.sh PATH/TO/MERGED-TABLE.csv
+```
 
-Objective:
-- Download the HTML and source files for each web page.
-- Enrich the merged table with the following columns:
-    - `archive_timestamp` : the time at which `wget` downloaded the HTML,
-    - default columns added with `minet` CLI command `fetch`.
+Result:
+```mermaid
+flowchart LR
+
+archive("archive/")
+script(archive.sh)
+log_0("log_0/")
+path_0("path_0/")
+log1[/000e6870e9a9c1e1d045ebe34a703364_log/]
+log2[/000ceb74a81a3d6432ecc89765dadbb9_log/]
+log3[/00af1db274f277ca5e19349c2b51f8eb_log/]
+path1[/000e6870e9a9c1e1d045ebe34a703364_paths/]
+path2[/000ceb74a81a3d6432ecc89765dadbb9_paths/]
+path3[/00af1db274f277ca5e19349c2b51f8eb_paths/]
+archive0("0/")
+archive000[("000/")]
+archive00a[("00a/")]
+id1{{directories for 000e6870e9a9c1e1d045ebe34a703364}}
+id2{{directories for 000ceb74a81a3d6432ecc89765dadbb9}}
+id3{{directories for 00af1db274f277ca5e19349c2b51f8eb}}
+
+archive---log_0
+archive---script
+archive---path_0
+archive---archive0
+
+log_0---log1
+log_0---log2
+log_0---log3
+path_0---path1
+path_0---path2
+path_0---path3
+
+archive0---archive000
+archive0---archive00a
+archive000---id1
+archive000---id2
+archive00a---id3
+
+
+```
+
+
+
+### TODO (in Python)
+   1. list all log subdirectories in archive directory (see Python's native [os library](https://docs.python.org/fr/3/library/os.html))
+       - iterate through all log subdirectories and all `wget` logs inside each subdirectory
+   2. with a `wget` log open,
+       - parse URL ID from log file name
+       - on first line, parse log date-time (ex. `--2022-12-23 09:46:32--`)
+       - on last line, parse success
+           - fail: `Liens convertis dans 0 fichiers en 0 secondes.`
+           - success: `Liens convertis dans 7 fichiers en 0,004 secondes.`
+       - if `wget` download was successful, index date-time to URL ID
+       ```python
+       index = {
+           "000ceb74a81a3d6432ecc89765dadbb9": "2022-12-23 06:37:55", # successful
+           "000e6870e9a9c1e1d045ebe34a703364": None, # unsuccessful
+       }
+       ```
+   4. with merged table open,
+       - iterate through merged table while adding a value to `archive_timestamp` column
+
