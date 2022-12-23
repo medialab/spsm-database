@@ -7,53 +7,57 @@ When downloading this repository, create a virtual Python environment with the p
 ---
 [Guildeines for collecting and formatting data from existing databases](doc/DATASETS.md)
 
+
 The project's data sources are:
 - Condor
-    - one-time import (24 October 2022)
+    - start: `2011-01-01 08:10:00`
+    - end: `2022-07-05 21:20:00`
+    - count: `98,794`
 - Science Feedback
-    - requests must be targeted to a date frame
+    - start: `2008-04-02T23:31:39Z` (not normalized in merged table column `date`)
+    - end: `2022-12-16 03:38:15`
+    - count: `1,5037`
 - De Facto
-    - updated regularly
-    - requests return entire database
-
-*Science Feedback date frame*
-
->maybe :  01/01/2020 - 31/12/2022
-
-
-*Comparable date frame for De Facto*
-
->maybe :  start (22/12/2020) - 31/12/2022
+    - start: `0202-07-06 23:09:21`
+    - end: `2022-12-17 00:00:00`
+    - count: `290`
 
 ---
 
 [Guidelines for updating and archiving the collection of misinformation sources](doc/COLLECTION1.md)
 
-### Update
-- with [merge.py](merge-data/merge.py), aggregate URLs from datasets into one central collection of sources of misinformation 
+### Merge
+- with [merge.py](merge-data/merge.py), aggregate URLs from datasets into one central collection of sources of misinformation.
+
+- with [index.py](merge-data/index.py), map the merged table's CSV columns to value types in an elastic-search index; create that index on the server so it is accessible to the team.
 
 ### Archive
-- `bash` (and xsv) script(s) to archive misinformation sources' web pages : 
+- with [archive.sh](archive.sh), `wget` download web pages' content and send the pages to be archived at the [Internet Archive](https://web.archive.org/); save the `wget` log and write paths in log to file.
 
-`archive/`
+from the subdirectory `archive/`
 ```shell
 $ bash archive.sh PATH/TO/DATAFILE
 ```
-   
-   - arhive online all of the web page with `webarchive`
-        - save online the web page online 
-        - can retrieve the saved webpage afterwards
-   
-   - archive localy all of the web page with `wget`
-        - save localy files from the web page
-        - parse log and create a file to save it named '$hash_log'; each file is stored in a folder named 'log_' followed by the first letter or number of the hash of the url 
-        - write timestamp to column* in updated merged table
-        - create a file containing all the paths to the saved elements of the webpage named '$hash_paths'; each file is stored in a folder named 'hash_' followed by the first letter or number of the hash of the url
 
-  - fetch HTML with `minet fetch`
-       - let `minet`update merged table
+- TODO: in Python
+    1. list all log subdirectories in archive directory (see Python's native [os library](https://docs.python.org/fr/3/library/os.html))
+        - iterate through all log subdirectories and all `wget` logs inside each subdirectory
+    2. with a `wget` log open,
+        - parse URL ID from log file name
+        - on first line, parse log date-time (ex. `--2022-12-23 09:46:32--`)
+        - on last line, parse success
+            - fail: `Liens convertis dans 0 fichiers en 0 secondes.`
+            - success: `Liens convertis dans 7 fichiers en 0,004 secondes.`
+        - if `wget` download was successful, index date-time to URL ID
+        ```python
+        {
+            "000ceb74a81a3d6432ecc89765dadbb9": "2022-12-23 06:37:55", # successful
+            "000e6870e9a9c1e1d045ebe34a703364": None, # unsuccessful
+        }
+        ```
+    4. with merged table open,
+        - iterate through merged table while adding a value to `archive_timestamp` column
 
-    \* the column `archive_timestamp` is written and left empty when the merged table is created; it is ready to be used by a new Python script, which should parse the timestamp from the `wget` log and format/write that value into the column
 ---
 
 [Guildelines for updating the collection of observed appearances of misinformation sources](doc/COLLECTION2.md)
