@@ -51,9 +51,14 @@ def main(infile, outfile):
             # Set file and folder paths according to hash
             wget = WgetParams(full_hash=hash)
 
-            # If the row hasn't been archived with Wget
-            if not row[archive_timestamp_po]:
+            print(f"\nWorking on '{url}'")
 
+            # If the row has already been archived with Wget
+            if os.path.exists(wget.log_file):
+                archive_time = os.path.getmtime(wget.log_file)
+
+            # Otherwise
+            else:
                 # Make the necessary folder structure
                 if not os.path.isdir(wget.archive_parent_dir): os.mkdir(wget.archive_parent_dir)
                 if not os.path.isdir(wget.archive_dir): os.mkdir(wget.archive_dir)
@@ -62,7 +67,7 @@ def main(infile, outfile):
 
                 # Call the bash subprocess for Wget
                 archive_time = datetime.utcnow()
-                print(f"\nCalling Wget on '{url}'")         
+                print(f"\nCalling Wget ON URL")
                 subprocess.run([
                     WGET_SCRIPT, # command
                     wget.archive_dir, # $1
@@ -71,14 +76,6 @@ def main(infile, outfile):
                     wget.paths_file, # $4
                 ])
 
-                # Parse the last line of the log file
-                last_line = casanova.reverse_reader.last_cell(wget.log_file, 0)
-                # If the Wget archive was successful, add timestamp to casanova.enricher row
-                if not fail.match(last_line):
-                    row[archive_timestamp_po] = archive_time            
-                # Regardless of Wget success, write row to out-file
-                enricher.writerow(row)
-            
                 # Call the bash subprocess for web.archive.org
                 print(f"Sending URL to Web Archive")         
                 subprocess.run([
@@ -86,7 +83,17 @@ def main(infile, outfile):
                     url, # $1
                 ])
 
-            time.sleep(5)
+                # Give some breath
+                time.sleep(5)
+
+            # Parse the last line of the log file
+            last_line = casanova.reverse_reader.last_cell(wget.log_file, 0)
+            # If the Wget archive was successful, add timestamp to casanova.enricher row
+            if not fail.match(last_line):
+                row[archive_timestamp_po] = archive_time
+
+            # Regardless of Wget success, write row to out-file
+            enricher.writerow(row)
 
 
 if __name__ == "__main__":
