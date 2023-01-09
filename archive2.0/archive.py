@@ -31,7 +31,7 @@ def main(infile, outfile):
     if not os.path.isfile(CURL_SCRIPT): raise FileNotFoundError
     if not os.path.isfile(WGET_SCRIPT): raise FileNotFoundError
 
-    # Regex of last line in the log of a failed Wget 
+    # Regex of last line in the log of a failed Wget
     fail = re.compile(r"dans 0 fichiers|in 0 files")
 
     # With casanova, build an enricher using the in- and out-files
@@ -77,7 +77,7 @@ def main(infile, outfile):
                 ])
 
                 # Call the bash subprocess for web.archive.org
-                print(f"Sending URL to Web Archive")         
+                print(f"Sending URL to Web Archive")
                 subprocess.run([
                     CURL_SCRIPT, # command
                     url, # $1
