@@ -53,12 +53,8 @@ def main(infile, outfile):
 
             print(f"\nWorking on '{url}'")
 
-            # If the row has already been archived with Wget
-            if os.path.exists(wget.log_file):
-                archive_time = os.path.getmtime(wget.log_file)
-
-            # Otherwise
-            else:
+            # If the row has not already been archived with Wget
+            if not (os.path.exists(wget.log_file) and os.path.getsize(wget.log_file)):
                 # Make the necessary folder structure
                 if not os.path.isdir(wget.archive_parent_dir): os.mkdir(wget.archive_parent_dir)
                 if not os.path.isdir(wget.archive_dir): os.mkdir(wget.archive_dir)
@@ -86,11 +82,8 @@ def main(infile, outfile):
                 # Give some breath
                 time.sleep(5)
 
-            # Parse the last line of the log file
-            last_line = casanova.reverse_reader.last_cell(wget.log_file, 0)
-            # If the Wget archive was successful, add timestamp to casanova.enricher row
-            if not fail.match(last_line):
-                row[archive_timestamp_po] = archive_time
+            archive_time = os.path.getmtime(wget.log_file)
+            row[archive_timestamp_po] = archive_time
 
             # Regardless of Wget success, write row to out-file
             enricher.writerow(row)
