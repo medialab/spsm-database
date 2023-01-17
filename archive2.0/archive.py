@@ -63,7 +63,7 @@ def main(infile, outfile):
 
                 # Call the bash subprocess for Wget
                 archive_time = datetime.utcnow()
-                print(f"\nCalling Wget ON URL")
+                print(f"\nCalling Wget ON URL at {archive_time}")
                 subprocess.run([
                     WGET_SCRIPT, # command
                     wget.archive_dir, # $1
@@ -73,7 +73,8 @@ def main(infile, outfile):
                 ])
 
                 # Call the bash subprocess for web.archive.org
-                print(f"Sending URL to Web Archive")
+                webarchive_time = datetime.utcnow()
+                print(f"Sending URL to Web Archive at {webarchive_time}")
                 subprocess.run([
                     CURL_SCRIPT, # command
                     url, # $1
