@@ -32,12 +32,17 @@ The project's data sources are:
 - with [index.py](merge-data/index.py), map the merged table's CSV columns to value types in an elastic-search index; create that index on the server so it is accessible to the team.
 
 ### Archive
-- with [archive.sh](archive.sh), `wget` download web pages' content and send the pages to be archived at the [Internet Archive](https://web.archive.org/); save the `wget` log and write paths in log to file.
-
+- with [archive.py](archive2.0/archive.py), download web pages' content and send the pages to be archived at the [Internet Archive](https://web.archive.org/).
 ---
 
-[Guildelines for updating the collection of observed appearances of misinformation sources](doc/COLLECTION2.md)
+[Guildelines for updating the collection of misinformation sources and observed appearances](doc/COLLECTION2.md)
 
-TODO
+### Misinformation Sources
+Using the created CSV files, update the SQL database
+```shell
+$ python src/database.py COMMAND FILE
+```
+
+Commands currently include: `create-links` (populate table of URLs), `create-condor` (populate table of Condor dataset)
 
 ---
