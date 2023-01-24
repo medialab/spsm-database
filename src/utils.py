@@ -1,5 +1,4 @@
 import os
-import csv
 from datetime import date
 
 class FileNaming:
