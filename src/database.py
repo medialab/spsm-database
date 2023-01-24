@@ -1,5 +1,6 @@
 import csv
 import sys
+from datetime import datetime
 from typing import Optional
 
 import casanova
@@ -8,6 +9,11 @@ from sqlalchemy import (DateTime, Float, ForeignKey, Integer, MetaData, String,
                         create_engine)
 from sqlalchemy.orm import (DeclarativeBase, Mapped, Session, mapped_column,
                             relationship)
+
+
+CONDOR_DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+DEFACT_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%f%z"
+SCIENCE_FEEDBACK_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
 
 @click.group()
@@ -49,7 +55,7 @@ class Condor(Base):
     url_hash: Mapped[str] = mapped_column(ForeignKey("links.hash"))
     url_rid: Mapped[str] = mapped_column(String(50))
     clean_url: Mapped[str] = mapped_column(String(255))
-    first_post_time: Mapped[Optional[str]] = mapped_column(String(50))
+    first_post_time: Mapped[Optional[datetime]] = mapped_column(DateTime)
     share_title: Mapped[Optional[str]] = mapped_column(String(255))
     tpfc_rating: Mapped[Optional[str]] = mapped_column(String(255))
     tpfc_first_fact_check: Mapped[Optional[str]] = mapped_column(String(50))
@@ -68,7 +74,7 @@ class ScienceFeedback(Base):
     url_content_id: Mapped[str] = mapped_column(String(5))
     url: Mapped[str] = mapped_column(String(255))
     claimreviewed: Mapped[str] = mapped_column(String(255))
-    publisheddate: Mapped[str] = mapped_column(String(50))
+    publisheddate: Mapped[Optional[datetime]] = mapped_column(DateTime)
     publisher: Mapped[str] = mapped_column(String(100))
     reviews_author: Mapped[str] = mapped_column(String(100))
     reviews_reviewratings_ratingvalue: Mapped[float] = mapped_column(Float)
@@ -99,11 +105,13 @@ def create_condor(ctx, file):
 
         condor_insert = list()
         for row in reader:
+            try: formatted_time = datetime.strptime(row[first_post_time_pos], CONDOR_DATE_FORMAT)
+            except: formatted_time = None
             condor_insert.append(Condor(
                 url_rid=row[url_rid_pos],
                 url_hash=row[url_hash_pos],
                 clean_url=row[clean_url_pos],
-                first_post_time=row[first_post_time_pos],
+                first_post_time=formatted_time,
                 share_title=row[share_title_pos],
                 tpfc_rating=row[tpfc_rating_pos],
                 tpfc_first_fact_check=row[tpfc_first_fact_check_pos],
