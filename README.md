@@ -38,7 +38,7 @@ The project's data sources are:
 [Guildelines for updating the collection of misinformation sources and observed appearances](doc/COLLECTION2.md)
 
 ### Misinformation Sources
-Using the created CSV files, update the SQL database
+Using the created CSV files, update the SQL database.
 ```shell
 $ python src/database.py COMMAND FILE
 ```
