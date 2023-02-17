@@ -52,10 +52,9 @@ def main(datafile, reverse, dir, rcfile, query_col, not_academic):
 
     # If this directory has a list of already processed IDs, read them to a list
     processed_ids = []
-    if not os.path.isfile(processed_ids_filepath):
-        with open(processed_ids_filepath, 'r') as f:
-            reader = casanova.reader(f)
-            [processed_ids.extend(row) for row in reader]
+    with open(processed_ids_filepath, 'r') as f:
+        reader = casanova.reader(f)
+        [processed_ids.extend(row) for row in reader]
 
     # In append mode, open the processed IDs log, the results file, and the errors file for this collection directory
     with open(processed_ids_filepath, 'a') as open_processed_ids_file, open(errors_filepath, 'a') as open_error_file, open(results_filepath, 'a') as open_results_file:
