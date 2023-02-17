@@ -52,7 +52,7 @@ def main(datafile, reverse, dir, rcfile, query_col, not_academic):
 
     # If this directory has a list of already processed IDs, read them to a list
     processed_ids = []
-    if os.path.isfile(processed_ids_filepath):
+    if not os.path.isfile(processed_ids_filepath):
         with open(processed_ids_filepath, 'r') as f:
             reader = casanova.reader(f)
             [processed_ids.extend(row) for row in reader]
