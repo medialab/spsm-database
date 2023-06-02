@@ -1,8 +1,12 @@
 {
     "science-feedback":{
-        "token": "XXXXXXXX-XXXXXXXX"
+        "token": "XXXXXXXX-XXXXXXXX",
+        "start_date": "2000-01-01",
+        "end_date": "2022-12-16",
+        "pages": "1000"
     },
     "defacto": {
-        "endpoint": "https://XXXXXXXX"
+        "endpoint": "https://XXXXXXXX",
+        "end_date": "2022-12-21"
     }
 }

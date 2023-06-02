@@ -1,152 +1,231 @@
+import argparse
 import csv
-import os
-import sys
+from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 
-import click
+import casanova
+from CONSTANTS import CONDOR_FIELDS, DEFACTO_FIELDS, SCIENCE_FIELDS
 from tqdm.auto import tqdm
 
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-sys.path.append(parent)
-from collect_data.condor import CONDOR_FIELDS
-from collect_data.defacto import DEFACTO_FIELDS
-from collect_data.science import SCIENCE_FIELDS
-from src.utils import FileNaming
-
-SHARED_FIELDS = ["url_id", "date", "sources", "normalized_url", "archive_url", "archive_timestamp"]
+today = str(datetime.today().date())
 
 
-class Fields():
+def file_exists(input):
+    path = Path(input)
+    if path.is_file():
+        return path
+    else:
+        raise FileNotFoundError(input)
 
+
+@dataclass
+class SharedFields:
     merged_date_format = "%Y-%m-%d %H:%M:%S"
+    fields = [
+        "url_id",
+        "date",
+        "sources",
+        "normalized_url",
+        "archive_url",
+        "archive_timestamp",
+    ]
 
-    def __init__(self, dataset):
-        if dataset == "condor":
-            self.url_column = "clean_url"
-            self.id_column = "url_rid"
-            self.date_column = "first_post_time"
-            self.date_format = "%Y-%m-%d %H:%M:%S.%f"
-        elif dataset == "defacto":
-            self.url_column = "claim-review_itemReviewed_appearance_url"
-            self.id_column = "id"
-            self.date_column = "claim-review_itemReviewed_datePublished"
-            self.date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
-        elif dataset == "science":
-            self.url_column = "url"
-            self.id_column = "id"
-            self.date_column = "publishedDate"
-            self.date_format = "%Y-%m-%dT%H:%M:%S%z"
+    @dataclass
+    class Condor:
+        url_column = "clean_url"
+        id_column = "url_rid"
+        date_column = "first_post_time"
+        date_format = "%Y-%m-%d %H:%M:%S.%f"
+
+    @dataclass
+    class DeFacto:
+        url_column = "claim-review_itemReviewed_appearance_url"
+        id_column = "id"
+        date_column = "claim-review_itemReviewed_datePublished"
+        date_format = "%Y-%m-%dT%H:%M:%S.%f%z"
+
+    @dataclass
+    class Science:
+        url_column = "url"
+        id_column = "id"
+        date_column = "publishedDate"
+        date_format = "%Y-%m-%dT%H:%M:%S%z"
 
 
-@click.command
-@click.option("--dataset", type=click.Choice(['condor', 'science', 'defacto'], case_sensitive=False), required=True, help="Origin of the data.")
-@click.option("--filepath", type=click.Path(exists=True, file_okay=True), required=True, help="CSV file to be added to the collection.")
-@click.option("--length", type=int, nargs=1, required=False, help="Length of the CSV file to be added.")
-@click.option("--merged-table", "merged_table", type=click.Path(exists=True, file_okay=True), required=False, help="Collection of misinformation sources.")
-def main(dataset:str, filepath:str, length:str, merged_table:str):
+class RowFormatter:
+    def __init__(self, prefix: str) -> None:
+        self.fields = getattr(SharedFields, prefix)
+        self.prefix = prefix.lower()
 
-    # Determine which column in the dataset has the URL
-    if dataset != "condor" and dataset != "defacto" and dataset != "science":
-        raise ValueError("Dataset must be declared as 'condor', 'defacto', or 'science'.\n")
-    
-    fields = Fields(dataset)
-
-    # If adding to a previously merged table, serialize the merged table's rows in an indexed dictionary
-    index_of_merged_table = {}
-    if merged_table:
-        with open(merged_table, "r", encoding="utf-8") as open_merged_table:
-            merged_table_reader = csv.DictReader(open_merged_table)
-            [index_of_merged_table.update({row["url_id"]:row}) for row in merged_table_reader]
-    
-    # Generate information for new merged table
-    if not os.path.isdir("output"):
-        os.mkdir("output")
-    new_merged_table_name = FileNaming("misinformation", "output", "csv").todays_date
-    merged_fieldnames = SHARED_FIELDS+[f"condor_{field}" for field in CONDOR_FIELDS if field!="hash" and field!="normalized_url"]+[f"science_{field}" for field in SCIENCE_FIELDS if field!="hash" and field!="normalized_url"]+[f"defacto_{field}" for field in DEFACTO_FIELDS if field!="hash" and field!="normalized_url"]
-
-    # Open incoming dataset and new merged table
-    with open(filepath, "r", encoding="utf-8") as open_dataset, open(new_merged_table_name, "w", encoding="utf-8") as open_new_merge:
-        reader = csv.DictReader(open_dataset)
-        if length:
-            generator = tqdm(reader, total=int(length), desc="Updating collection")
+    def row(self, row: dict) -> dict:
+        date_column = getattr(self.fields, "date_column")
+        date = row[date_column]
+        if date:
+            original_date_format = datetime.strptime(
+                date, getattr(self.fields, "date_format")
+            )
+            standard_date_format = datetime.strptime(
+                original_date_format.strftime(SharedFields.merged_date_format),
+                SharedFields.merged_date_format,
+            )
+            row["date"] = standard_date_format
         else:
-            generator = reader
-        writer = csv.DictWriter(open_new_merge, fieldnames=merged_fieldnames)
+            row["date"] = None
+        url_column = getattr(self.fields, "url_column")
+        row["archive_url"] = row[url_column]
+        row["sources"] = self.prefix
+        row["url_id"] = row["hash"]
+        row.pop("hash")
+        return row
+
+    def rename_fields(self, row: dict) -> dict:
+        renamed_row = {}
+        for k, v in row.items():
+            if k not in SharedFields.fields:
+                k = "{}_{}".format(self.prefix, k)
+            renamed_row[k] = v
+        return renamed_row
+
+
+def main():
+    # ------------------------------------------------------- #
+    # 0. Parse the Command-Line arguments
+    parser = argparse.ArgumentParser(
+        prog="Merge",
+        description="Merge 3 flattened data source CSV files.",
+    )
+    parser.add_argument("--condor", type=file_exists)
+    parser.add_argument("--defacto", type=file_exists)
+    parser.add_argument("--science", type=file_exists)
+    parser.add_argument("output_dir", type=str)
+    args = parser.parse_args()
+    condor_filepath, defacto_filepath, sf_filepath, output_dir = (
+        args.condor,
+        args.defacto,
+        args.science,
+        args.output_dir,
+    )
+    if not Path(output_dir).is_dir():
+        raise NotADirectoryError
+    merged_filepath = Path(output_dir).joinpath(f"aggregated_{today}.csv")
+    concatenated_filepath = Path(output_dir).joinpath(f"concatenated_{today}.csv")
+
+    # ------------------------------------------------------- #
+    # 1. Establish the merged file's fieldnames
+    fieldnames_with_prefix = []
+    for name in DEFACTO_FIELDS:
+        if name not in SharedFields.fields:
+            name = "{}_{}".format("defacto", name)
+        fieldnames_with_prefix.append(name)
+    for name in CONDOR_FIELDS:
+        if name not in SharedFields.fields:
+            name = "{}_{}".format("condor", name)
+        fieldnames_with_prefix.append(name)
+    for name in SCIENCE_FIELDS:
+        if name not in SharedFields.fields:
+            name = "{}_{}".format("science", name)
+        fieldnames_with_prefix.append(name)
+    fieldnames_with_prefix = sorted(list(set(fieldnames_with_prefix)))
+    merge_field_names = SharedFields.fields + fieldnames_with_prefix
+
+    # ------------------------------------------------------- #
+    # 2. Store all URL IDs in an index
+    url_id_index = {}
+
+    # ------------------------------------------------------- #
+    # 3. Index all the Condor data by the URL ID
+    print("\nFormatting Condor data.")
+    total = casanova.reader.count(condor_filepath)
+    formatter = RowFormatter("Condor")
+    with open(condor_filepath) as f, open(concatenated_filepath, "a") as of:
+        reader = csv.DictReader(f)
+        writer = csv.DictWriter(of, fieldnames=merge_field_names)
         writer.writeheader()
+        for row in tqdm(reader, total=total):
+            # Format the data's date and add universal columns
+            row_with_formatted_date = formatter.row(row)
+            # Rename certain columns with the dataset's prefix
+            row_with_renamed_fields = formatter.rename_fields(row_with_formatted_date)
+            # Append this data to the URL Index
+            url_id = row_with_renamed_fields["url_id"]
+            if not url_id_index.get(url_id):
+                url_id_index[url_id] = []
+            url_id_index[url_id].append(row_with_renamed_fields)
+            writer.writerow(row_with_renamed_fields)
 
-        for row in generator:
-            row_hash = row['hash']
-            row_normalized_url = row['normalized_url']
+    # ------------------------------------------------------- #
+    # 4. Index all the De Facto data by the URL ID
+    print("\nFormatting De Facto data.")
+    total = casanova.reader.count(defacto_filepath)
+    formatter = RowFormatter("DeFacto")
+    with open(defacto_filepath) as f, open(concatenated_filepath, "a") as of:
+        reader = csv.DictReader(f)
+        writer = csv.DictWriter(of, fieldnames=merge_field_names)
+        writer.writeheader()
+        for row in tqdm(reader, total=total):
+            # Format the data's date and add universal columns
+            row_with_formatted_date = formatter.row(row)
+            # Rename certain columns with the dataset's prefix
+            row_with_renamed_fields = formatter.rename_fields(row_with_formatted_date)
+            # Append this data to the URL Index
+            url_id = row_with_renamed_fields["url_id"]
+            if not url_id_index.get(url_id):
+                url_id_index[url_id] = []
+            url_id_index[url_id].append(row_with_renamed_fields)
+            writer.writerow(row_with_renamed_fields)
 
-            # Format the value in the row's date column
-            if row[fields.date_column]:
-                row_date = datetime.strptime(row[fields.date_column], fields.date_format)
-                row_date = datetime.strptime(row_date.strftime(fields.merged_date_format), fields.merged_date_format)
+    # ------------------------------------------------------- #
+    # 5. Index all the Science Feedback data by the URL ID
+    print("\nFormatting Science Feeback data.")
+    total = casanova.reader.count(sf_filepath)
+    formatter = RowFormatter("Science")
+    with open(sf_filepath) as f, open(concatenated_filepath, "a") as of:
+        reader = csv.DictReader(f)
+        writer = csv.DictWriter(of, fieldnames=merge_field_names)
+        writer.writeheader()
+        for row in tqdm(reader, total=total):
+            # Format the data's date and add universal columns
+            row_with_formatted_date = formatter.row(row)
+            # Rename certain columns with the dataset's prefix
+            row_with_renamed_fields = formatter.rename_fields(row_with_formatted_date)
+            # Append this data to the URL Index
+            url_id = row_with_renamed_fields["url_id"]
+            if not url_id_index.get(url_id):
+                url_id_index[url_id] = []
+            url_id_index[url_id].append(row_with_renamed_fields)
+            writer.writerow(row_with_renamed_fields)
+
+    # ------------------------------------------------------- #
+    # 6. In one CSV file, merge all the data in the URL ID index
+    print("\nAggregating by URL.")
+    with open(merged_filepath, "w") as of:
+        writer = csv.DictWriter(of, fieldnames=merge_field_names)
+        writer.writeheader()
+        for url_id, data in tqdm(url_id_index.items(), total=len(url_id_index)):
+            # 6.a Establish an empty version of the merged row
+            merged_row = {k: None for k in merge_field_names}
+            # 6.b In case a dataset has duplicate URLs, concatenate the dataset's metadata
+            for row in data:
+                for k, v in row.items():
+                    if k not in SharedFields.fields:
+                        if merged_row[k]:
+                            concatenation = [merged_row[k], v]
+                            v = "|".join(concatenation)
+                    merged_row[k] = v
+            # 6.c For the row's "date" column, get the oldest date for this URL
+            dates = sorted([row["date"] for row in data if row["date"]])
+            if len(dates) > 0:
+                oldest_date = dates[0]
             else:
-                row_date = None
-
-            # Empty dictionary on which to map updated row data 
-            merged_row = {"url_id":None, "date":None, "sources":None, "normalized_url":None, "archive_url":None, "archive_timestamp":None}
-
-            # If the merged table does not have a URL with this hash, create a new row
-            if row_hash not in index_of_merged_table.keys():
-                [merged_row.update({f"{dataset}_{col}":row[col]}) for col in reader.fieldnames if col!="hash" and col!="normalized_url"]
-                merged_row.update({"url_id":row_hash, "sources":dataset, "normalized_url":row_normalized_url, "archive_url":row[fields.url_column]})
-                index_of_merged_table.update({merged_row["url_id"]:merged_row})
-                if row_date:
-                    merged_row.update({"date":row_date})
-
-            # If the merged table has a URL with this hash already, update the row
-            else:
-
-                existing_row = index_of_merged_table[row_hash]
-                merged_row.update(existing_row)
-
-                # Replace the value in the date column with the earliest datetime object
-                if isinstance(row_date, datetime):
-                    if existing_row.get("date"):
-                        if not isinstance(existing_row["date"], datetime):
-                            existing_row_date = datetime.strptime(existing_row["date"], fields.merged_date_format)
-                        else:
-                            existing_row_date = existing_row["date"]
-                    if existing_row_date > row_date:
-                        merged_row.update({"date":row_date})
-                    else:
-                        merged_row.update({"date":row_date})
-
-
-                # If the dataset's data hasn't been entered into the merged table, update the sources column with it
-                if dataset not in existing_row["sources"]:
-                    sources:list = existing_row["sources"].split("|")
-                    sources.append(dataset)
-                    updated_sources = "|".join(sources)
-                    merged_row.update({"sources":updated_sources})
-
-                # Determine if this exact item (via ID) from the incoming dataset has already been entered in the merged table
-                dataset_id_col = f"{dataset}_{fields.id_column}"
-                if existing_row[dataset_id_col]:
-                    ids = existing_row[dataset_id_col].split("|")
-                else:
-                    ids = []
-                # If the dataset's item hasn't been entered in the merged table, update the row
-                if row[fields.id_column] not in ids:
-                    cols_to_update = [col for col in reader.fieldnames if col!="hash"and col!="normalized_url"]
-                    for col in cols_to_update:
-                        merged_col = f"{dataset}_{col}"
-                        data = existing_row[merged_col]
-                        if data:
-                            data = data.split("|")
-                            data.append(row[col])
-                            update = "|".join(data)
-                        else:
-                            update = row[col]
-                        merged_row.update({merged_col:update})
-                    index_of_merged_table.update({merged_row["url_id"]:merged_row})
-
-        # Write the new aggregation of hashed URLs
-        print(f"Writing new merged table of misinformation sources to file: {new_merged_table_name}")
-        writer.writerows(index_of_merged_table.values())
+                oldest_date = None
+            merged_row["date"] = oldest_date
+            # 6.d For the row's "source" column, get a list of unique sources
+            sources = sorted(list(set([row["sources"] for row in data])))
+            if len(sources) > 1:
+                sources = "|".join(sources)
+            merged_row["sources"] = sources
+            writer.writerow(merged_row)
 
 
 if __name__ == "__main__":
