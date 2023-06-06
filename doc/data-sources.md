@@ -1,15 +1,16 @@
 # Data sources
 
+In `src/normalize-data-sources/`, the script [flatten.py](../src/normalize-data-sources/flatten.py) requests, cleans, and formats data from all 3 data sources.
+
 ### Table of contents
 
-- [Flatten data](#flatten-data)
-  - [Science Feedback](#science-feedback)
-  - [Condor](#condor)
-  - [De Facto](#de-facto)
+- [Science Feedback](#science-feedback)
+- [Condor](#condor)
+- [De Facto](#de-facto)
 
 ## Flatten data
 
-To access De Facto and/or Science Feedback's databases, update the configuration file with the relevant confidential information.
+To access De Facto and/or Science Feedback's databases, a configuration file with the relevant confidential information is needed.
 
 `config.json`
 
@@ -30,11 +31,9 @@ To access De Facto and/or Science Feedback's databases, update the configuration
 
 ---
 
-The script [flatten.py](../src/normalize-data-sources/flatten.py) requests, cleans, and formats data for all 3 data sources.
-
 ### Science Feedback
 
-When you query the Science Feedback database for every fact-checked item that appeared within a date range (i.e. `--start 2010-01-01` `--end 2022-12-16`), the API returns pages of results. The result of this general search request has the following data format:
+When you query the Science Feedback database for every fact-checked item that appeared within a date range (i.e. `--start 2010-01-01` `--end 2022-12-16`), the API returns pages of "appearances". The result of this general search request has the following data format:
 
 #### Appearance requested via date range
 
