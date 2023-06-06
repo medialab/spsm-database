@@ -8,7 +8,7 @@ Tools to create, update, and enrich the SPSM project's data.
 
 ### - [How the original sources' data was gathered](doc/data-sources.md)
 
-### - [How the original sources' data was harmonized](doc/normalization.md)
+### - [How the original sources' data was aggregated by URL](doc/normalization.md)
 
 ### - Data source statistics:
 
