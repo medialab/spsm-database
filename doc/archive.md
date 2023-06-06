@@ -2,7 +2,7 @@
 
 Working from a dataset of aggregated URLs, the script [`archive.py`](../src/archive/archive.py) loops through every URL and performs 2 tasks.
 
-1. It sends the URL to the Internet Archive to be archive
+1. It sends the URL to the Internet Archive to be archived.
 2. It downloads the page and those of its dependent filepaths.
 
 The URL that is actually archived is not the URL's normalization because the normalization lacks a protocol. Instead, the archiving is done using the URL in the column `archive_url`, which may or may not be slighly different than other URLs aggregated under the same URL normalization.
