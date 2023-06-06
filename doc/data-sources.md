@@ -156,7 +156,7 @@ When you query the De Facto database, there is no way to specify a date range. T
     },
 ```
 
-The script parses the publication date of the returned items and filters out all those added to the database after the cut-off date (2022-12-21). Then, the script selects certain data fields and flattens then into a CSV file with the following columns:
+The script parses the publication date of the returned items and filters out all those added to the database after the cut-off date (2022-12-21). Then, the script selects certain data fields and flattens them into a CSV file with the following columns:
 
 | id                                                                                                       | hash                             | normalized_url                                   | themes             | tags   | claim-review_claimReviewed                                                  | claim-review_itemReviewed_datePublished | claim-review_itemReviewed_appearance_url                 | claim-review_itemReviewed_appearance_headline | claim-review_reviewRating_ratingValue | claim-review_reviewRating_alternateName |
 | -------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------ | ------------------ | ------ | --------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------- | --------------------------------------------- | ------------------------------------- | --------------------------------------- |
