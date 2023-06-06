@@ -8,7 +8,7 @@ In `src/normalize-data-sources/`, the script [flatten.py](../src/normalize-data-
 - [Condor](#condor)
 - [De Facto](#de-facto)
 
-### Access keys
+#### Access keys
 
 To access De Facto and/or Science Feedback's databases, a configuration file with the relevant confidential information is needed.
 
