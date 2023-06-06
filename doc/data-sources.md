@@ -2,13 +2,13 @@
 
 In `src/normalize-data-sources/`, the script [flatten.py](../src/normalize-data-sources/flatten.py) requests, cleans, and formats data from all 3 data sources.
 
-### Table of contents
+#### Data sources
 
 - [Science Feedback](#science-feedback)
 - [Condor](#condor)
 - [De Facto](#de-facto)
 
-## Flatten data
+### Access keys
 
 To access De Facto and/or Science Feedback's databases, a configuration file with the relevant confidential information is needed.
 
