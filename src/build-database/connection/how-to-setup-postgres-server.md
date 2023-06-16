@@ -11,7 +11,7 @@ $ brew services start postgresql@14
 ### Enter into PostgreSQL CLI
 
 ```shell
-$ psql postgres
+$ psql database-name
 ```
 
 This transforms the prefix on the command line to `postgres=#`.
