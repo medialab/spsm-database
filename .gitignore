@@ -1,9 +1,0 @@
-config.json
-*.csv
-*_archive
-*_log
-*_path
-*/**/__pycache__/
-__pycache__/
-*.python-version
-data/*
