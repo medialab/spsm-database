@@ -1,18 +1,19 @@
 from connection import connection
-from queries import create_table, drop_table, insert
+from tables.schemas import TestTable
+from queries import execute_query
 
 
 def main():
     if connection:
-        drop_table(connection=connection, table_name="test")
-        schema = [
-            "id bigserial primary key",
-            "fruit text NOT NULL",
-            "color text NOT NULL",
-        ]
-        create_table(connection=connection, table_name="test", table_schema=schema)
-        values = ["1", "apple", "red"]
-        insert(connection=connection, table_name="test", values=values)
+        table = TestTable()
+        query = table.drop()
+        execute_query(connection=connection, query=query)
+        query = table.create()
+        execute_query(connection=connection, query=query)
+        data = {"fruit": "apple", "color": "red"}
+        query = table.insert_values(data)
+        print(query)
+        execute_query(connection=connection, query=query)
 
 
 if __name__ == "__main__":
