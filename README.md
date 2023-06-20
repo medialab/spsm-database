@@ -33,16 +33,36 @@ Tools to create, update, and enrich the SPSM project's data.
 
 ### Tweet Table to Tweet-Query Relational Table
 
-The `tweet` table contains every tweet collected during the course of data collection for the project. The primary key is the column `id`, which represents the Tweet's ID according to Twitter. Tweets collected by search queries are related together via the `tweet_query` relational table. The latter table contains every pairing of tweet and query. The primary key is the composite of the `tweet_id` and `query`, which ensures that the table only contains a unique set of relations between Tweets and search queries.
+#### Description
+
+The `tweet` table contains every tweet collected during the course of data collection for the project. The primary key is the column `id`, which represents the Tweet's ID according to Twitter. Tweets collected by search queries are related to one another via the `tweet_query` relational table. The latter table contains every pairing of Tweet and search query. The primary key of the `tweet_query` table is the composite of the `tweet_id` and `query` fields, which ensures that the table contains only a unique set of relations between Tweets and search queries.
+
+#### Many-to-Many Relation
 
 In the relational `tweet_query` table, the ID of a Tweet (`tweet_id`) can occur many times if a Tweet satisifed more than one query. Likewise, the `query` can occur many times if more than one Tweet matched on the search query.
+
+#### Data ingestion
+
+If when inserting data to the `tweet` table the Tweet already exists in the table, a comparison is made and the prioritized Tweet's data is either conserved or used to replace the existing data.
+
+_Note: Currently, priority is given to Tweets that were collected more recently in order to have more updated counts of user interactions with the Tweet._
 
 ![tweet/tweet-query relation](doc/ER-Diagram_2.png)
 
 ### Tweet Table to User Table
 
-The `tweet` table also relates to the table `user`. The latter's primary key is the column `id`, which relates to the Twitter user's ID according to Twitter.
+#### Description
 
-Note: At the moment (late June 2023), only the Tweet's author (`user_id`) is related to the Twitter users in the `user` table. However, the `user` table is conceived so that it represents a unique set of Twitter users pertinent to the database. Consequently, other fields in the `tweet` table, such as `retweeted_user_id`, also have a relation to the Twitter users in the `user` table. Right now, the data in `user` table is derived from the author of a Tweet in the `tweet` table because the author allows for the population of many of the data fields in the `user` table. However, the `user` table should also contain nearly empty rows corresponding to a Twitter user for whom only the ID is known because it corresponds to a field such as `quoted_user_id`. This modification to the `user` table is in progress.
+The `tweet` table also relates to the table `twitter_user`. The latter's primary key is the column `id`, which relates to the Twitter user's ID according to Twitter.
+
+### Many-to-Many Relation
+
+_Note: At the moment (late June 2023), only the Tweet's author (`user_id`) is related to the Twitter users in the `twitter_user` table. However, the `twitter_user` table is conceived so that it represents a unique set of Twitter users pertinent to the database. Consequently, other fields in the `tweet` table, such as `retweeted_user_id`, also have a relation to the Twitter users in the `twitter_user` table. Right now, the data in `twitter_user` table is derived from the author of a Tweet in the `tweet` table because the author allows for the population of many of the data fields in the `twitter_user` table. However, the `twitter_user` table should also contain nearly empty rows corresponding to a Twitter user for whom only the ID is known because it corresponds to a field such as `quoted_user_id`. This modification to the `twitter_user` table is in progress._
+
+#### Data Ingestion
+
+If when inserting data to the `user` table the Twitter user already exists in the table, a comparison is made and the prioritized user's data is either conserved or used to replace the existing data.
+
+_Note: Currently, because Twitter users are only added to the `user` table if they authored a Tweet in the database, priority is based on the recency of the Tweet that the user authored. The idea behind this prioritization is to have a more up-to-date version of the Twitter user's profile. However, an argument for prioritizing data from the user's oldest Tweet in the database could be made as well._
 
 ![tweet/user relation](doc/ER-Diagram_1.png)
