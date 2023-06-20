@@ -26,3 +26,10 @@ Tools to create, update, and enrich the SPSM project's data.
   - count: `290`
 
 ### - [How the URLs were archived](doc/archive.md)
+
+---
+
+## Database Entity Relationships
+
+![tweet/tweet-query relation](doc/ER-Diagram_2.png)
+![tweet/user relation](doc/ER-Diagram_1.png)

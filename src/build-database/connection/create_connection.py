@@ -1,19 +1,17 @@
 import psycopg2
 import psycopg2.extensions
-from connection.parse_connection_info import parse_args
 from psycopg2 import OperationalError
 
 
-def connect() -> psycopg2.extensions.connection | None:
-    args = parse_args()
+def connect(config: dict) -> psycopg2.extensions.connection | None:
     connection = None
     try:
         connection = psycopg2.connect(
-            database=args["db_name"],
-            user=args["db_user"],
-            password=args["db_password"],
-            host=args["db_host"],
-            port=args["db_port"],
+            database=config["db_name"],
+            user=config["db_user"],
+            password=config["db_password"],
+            host=config["db_host"],
+            port=config["db_port"],
         )
         print("Connection to PostgreSQL DB successful.")
     except OperationalError as e:
