@@ -1,10 +1,16 @@
+# =============================================================================
+# SPSM Create SQL Database
+# =============================================================================
+#
+# Workflow for creating tables and inserting data from CSV files
+#
 import csv
-import re
 
 import casanova
+from tqdm import tqdm
+
 from connection import connection, filepaths
 from tables.schemas import TweetQueryTable, TweetTable, TwitterUserTable
-from tqdm import tqdm
 
 
 def main():
@@ -24,7 +30,7 @@ def main():
         for table in tables:
             table.drop(connection=connection, force=True)
 
-        # Create tables--careful of the order
+        # Create tables
         for table in tables:
             print(f"(Re)creating table: {table.name}")
             table.create(connection=connection)

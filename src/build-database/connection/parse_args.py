@@ -1,3 +1,9 @@
+# =============================================================================
+# SPSM Parse Configuration Info
+# =============================================================================
+#
+# Function to parse CLI argument and configuration file
+#
 from argparse import ArgumentParser
 from typing import Tuple
 

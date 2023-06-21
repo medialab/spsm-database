@@ -1,3 +1,9 @@
+# =============================================================================
+# SPSM Database Connection
+# =============================================================================
+#
+# Function to connect to the SQL database
+#
 import psycopg2
 import psycopg2.extensions
 from psycopg2 import OperationalError

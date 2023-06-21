@@ -1,4 +1,9 @@
-# SQL Tables as classes
+# =============================================================================
+# SPSM Database Tables
+# =============================================================================
+#
+# Table schemas and cleaning methods
+#
 import ast
 import re
 from dataclasses import dataclass
@@ -6,6 +11,8 @@ from datetime import datetime
 
 from tables.base_classes import BaseColumn, BaseTable
 
+# To help prevent spelling errors,
+# constants of SQL data types
 SERIAL = "SERIAL"
 INT = "INT"
 BIGINT = "BIGINT"
@@ -21,6 +28,9 @@ ARRAY = "TEXT[]"
 
 
 def clean_text(text: str | None) -> str | None:
+    """Function to prepare text data for insertion in SQL table.
+    Every single quote is replaced with 2 single quotes.
+    """
     if text:
         return re.sub(
             pattern=r"'",
@@ -31,6 +41,19 @@ def clean_text(text: str | None) -> str | None:
 
 @dataclass
 class TwitterUserTable(BaseTable):
+    """Dataclass holding information about the twitter_user table.
+    It possesses class methods to (1) parse a CSV (as dict) row and
+    recast/clean the data, and (2) compose a string that says what
+    to do if there is a conflict on the table's constraints.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
     # (required) Name of the table
     name = "twitter_user"
     # (variable) All of the table's columns
@@ -73,6 +96,14 @@ class TwitterUserTable(BaseTable):
 
     @classmethod
     def clean(cls, data: dict) -> dict:
+        """Parse user fields from a CSV (as dict) row and recast/clean the data.
+
+        Param:
+        data (dict): CSV row as a dictionary
+
+        Return:
+        selected_user_data (dict): Key-value pairs of column names and values
+        """
         # Select the user data fields from the CSV dict row
         selected_user_data = {}
         for k, v in data.items():
@@ -126,6 +157,19 @@ class TwitterUserTable(BaseTable):
 
 @dataclass
 class TweetTable(BaseTable):
+    """Dataclass holding information about the tweet table.
+    It possesses class methods to (1) parse a CSV (as dict) row and
+    recast/clean the data, and (2) compose a string that says what
+    to do if there is a conflict on the table's constraints.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
     # (required) Name of the table
     name = "tweet"
     # (variable) All of the table's columns
@@ -215,6 +259,14 @@ class TweetTable(BaseTable):
 
     @classmethod
     def clean(cls, data: dict) -> dict:
+        """Parse tweet fields from a CSV (as dict) row and recast/clean the data.
+
+        Param:
+        data (dict): CSV row as a dictionary
+
+        Return:
+        selected_tweet_data (dict): Key-value pairs of column names and values
+        """
         # Select the tweet data fields from the CSV dict row
         selected_tweet_data = {
             k: v for k, v in data.items() if k in [col.name for col in cls.columns]
@@ -301,6 +353,18 @@ class TweetTable(BaseTable):
 
 @dataclass
 class TweetQueryTable(BaseTable):
+    """Dataclass holding information about the tweet_query table.
+    It possesses class methods to (1) parse a CSV (as dict) row and
+    recast/clean the data.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
     # (required) Name of the table
     name = "tweet_query"
     # (variable) All of the table's columns
@@ -319,6 +383,13 @@ class TweetQueryTable(BaseTable):
 
     @classmethod
     def clean(cls, data: dict) -> dict:
+        """Parse a CSV (as dict) row and clean the text data.
+        Param:
+        data (dict): CSV row as a dictionary
+
+        Return:
+        (dict): Key-value pairs of column names and values
+        """
         clean_search_query = re.sub(pattern=r"'", repl="''", string=data["query"])
         return {
             "tweet_id": data["id"],

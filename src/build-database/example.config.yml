@@ -1,0 +1,10 @@
+---
+connection:
+  db_name: "spsm"
+  db_user: "user.name"
+  db_password: "user.password"
+  db_port: "PostgreSQL database port (usually 5432)"
+  db_host: "PostgreSQL database host"
+data file absolute paths:
+  tweets:
+    - "/absolute/path/to/tweet/file.csv"
