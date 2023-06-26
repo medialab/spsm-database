@@ -148,21 +148,18 @@ class BaseTable:
         if on_conflict:
             conflict = f" ON CONFLICT ({self.pk}) {on_conflict}"
 
-        # Cast the values as strings, wrapped in single quotes
-        values, columns = [], []
-        for column_name, value in data.items():
-            if value:
-                columns.append(column_name)
-                values.append(f"'{value}'")
+        # Make values query parameter string
+        values = data.values()
+        qps = ", ".join(["%s" for _ in values])
 
         # Compose the INSERT - VALUES command
         query = f"""
-        INSERT INTO {self.name}({", ".join(columns)}) VALUES ({", ".join(values)}){conflict};
+        INSERT INTO {self.name}({", ".join(data.keys())}) VALUES ({qps}){conflict};
         """
 
         # If a connection was given, immediately execute the query
         if connection:
-            execute_query(connection=connection, query=query)
+            execute_query(connection=connection, query=query, values=tuple(values))
         # Otherwise, return composed query for some later use
         else:
             return query

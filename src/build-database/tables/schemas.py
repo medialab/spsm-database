@@ -9,7 +9,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 
-from tables.base_classes import BaseColumn, BaseTable
+from tables.base_classes import BaseColumn, BaseTable, execute_query
 
 # To help prevent spelling errors,
 # constants of SQL data types
@@ -25,18 +25,7 @@ NOTNULL = "NOT NULL"
 DATETIME = "TIMESTAMP"
 BOOL = "BOOLEAN"
 ARRAY = "TEXT[]"
-
-
-def clean_text(text: str | None) -> str | None:
-    """Function to prepare text data for insertion in SQL table.
-    Every single quote is replaced with 2 single quotes.
-    """
-    if text:
-        return re.sub(
-            pattern=r"'",
-            repl="''",
-            string=text,
-        )
+FLOAT = "FLOAT"
 
 
 @dataclass
@@ -117,20 +106,8 @@ class TwitterUserTable(BaseTable):
                 selected_user_data.update({k: v})
         # Clean the selected data fields
         for column in cls.columns:
-            # Clean the text by replacing every single quote with 2 single quotes
-            if column.type == TEXT or column.type.startswith("VAR"):
-                selected_user_data.update(
-                    {
-                        column.name: clean_text(selected_user_data[column.name]),
-                    }
-                )
-            # Cast integers as integers
-            elif column.type == BIGINT:
-                n = selected_user_data[column.name]
-                try:
-                    selected_user_data.update({column.name: int(n)})
-                except Exception:
-                    selected_user_data.update({column.name: 0})
+            if selected_user_data[column.name] == "":
+                selected_user_data.update({column.name: None})
             # Cast booleans as booleans
             if column.type == BOOL:
                 b = selected_user_data[column.name]
@@ -138,8 +115,6 @@ class TwitterUserTable(BaseTable):
                     selected_user_data.update({column.name: False})
                 elif b == "1":
                     selected_user_data.update({column.name: True})
-            if selected_user_data[column.name] == "":
-                selected_user_data.update({column.name: None})
         return selected_user_data
 
     @classmethod
@@ -279,13 +254,6 @@ class TweetTable(BaseTable):
             # Clean up empty strings with null value
             if selected_tweet_data[column.name] == "":
                 selected_tweet_data.update({column.name: None})
-            # Clean the text by replacing every single quote with 2 single quotes
-            if column.type == TEXT or column.type.startswith("VAR"):
-                selected_tweet_data.update(
-                    {
-                        column.name: clean_text(selected_tweet_data[column.name]),
-                    }
-                )
             # Clean boolean fields
             if column.type == BOOL:
                 if selected_tweet_data[column.name] == "1":
@@ -293,7 +261,7 @@ class TweetTable(BaseTable):
                 else:
                     selected_tweet_data.update({column.name: False})
             # Parse timestamp integer
-            if column.name.endswith("timestamp_utc") and column.type == DATETIME:
+            elif column.name.endswith("timestamp_utc") and column.type == DATETIME:
                 s = None
                 try:
                     s = str(
@@ -319,13 +287,11 @@ class TweetTable(BaseTable):
                 # Otherwise, try to unnest the data on the | delimiter
                 elif parsed_column:
                     array = parsed_column.split("|")
-                # Wrap the array values in double quotes and flatten to a string
-                if len(array) > 0:
-                    array = ", ".join([f'"{v}"' for v in array if v])
-                # Wrap curly brackets around the double-quoted array string
-                selected_tweet_data.update({column.name: "{" + str(array) + "}"})
+                else:
+                    array = None
+                selected_tweet_data.update({column.name: array})
             # Create additional "is retweet" column
-            elif column.name == "is_retweet":
+            if column.name == "is_retweet":
                 if selected_tweet_data["retweeted_id"]:
                     selected_tweet_data.update({column.name: True})
                 else:
@@ -395,3 +361,299 @@ class TweetQueryTable(BaseTable):
             "tweet_id": data["id"],
             "query": clean_search_query,
         }
+
+
+@dataclass
+class CondorTable(BaseTable):
+    """Dataclass holding information about the condor data source.
+    It possesses class methods to (1) parse a CSV (as dict) row and
+    recast/clean the data.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
+    # (required) Name of the table
+    name = "condor"
+    # (variable) All of the table's columns
+    id = BaseColumn(name="id", type=SERIAL, **{"null": NOTNULL})
+    condor_url_rid = BaseColumn(name="condor_url_rid", type=VAR20)
+    url_id = BaseColumn(name="url_id", type=VAR250)
+    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    clean_url = BaseColumn(name="clean_url", type=TEXT)
+    first_post_time = BaseColumn(name="first_post_time", type=DATETIME)
+    share_title = BaseColumn(name="share_title", type=TEXT)
+    tpfc_rating = BaseColumn(name="tpfc_rating", type=TEXT)
+    tpfc_first_fact_check = BaseColumn(name="tpfc_first_fact_check", type=DATETIME)
+    public_shares_top_country = BaseColumn(name="public_shares_top_country", type=VAR20)
+
+    # (required) List of the columns
+    columns = [
+        id,
+        condor_url_rid,
+        url_id,
+        normalized_url,
+        clean_url,
+        first_post_time,
+        share_title,
+        tpfc_rating,
+        tpfc_first_fact_check,
+        public_shares_top_country,
+    ]
+    # (required) Primary key column name
+    pk = id.name
+    # (required) Addendum to be added to the end of the create command
+    schema_addendum = [f"PRIMARY KEY({pk})"]
+
+    @classmethod
+    def clean(cls, data: dict) -> dict:
+        condor_id = data.pop("url_rid")
+        url_id = data.pop("hash")
+        data.update({"condor_url_rid": condor_id, "url_id": url_id})
+        for k, v in data.items():
+            if v == "":
+                data.update({k: None})
+        return data
+
+
+@dataclass
+class ScienceFeedbackTable(BaseTable):
+    """Dataclass holding information about the science feedback data
+    source. It possesses class methods to (1) parse a CSV (as dict)
+    row and recast/clean the data.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
+    # (required) Name of the table
+    name = "science_feedback"
+    # (variable) All of the table's columns
+    id = BaseColumn(name="id", type=VAR20, **{"null": NOTNULL})
+    url_id = BaseColumn(name="url_id", type=VAR250, **{"null": NOTNULL})
+    url_content_id = BaseColumn(name="url_content_id", type=VAR20, **{"null": NOTNULL})
+    claim_reviewed = BaseColumn(name="claim_reviewed", type=TEXT)
+    published_date = BaseColumn(name="published_date", type=DATETIME)
+    publisher = BaseColumn(name="publisher", type=TEXT)
+    review_author = BaseColumn(name="review_author", type=TEXT)
+    review_rating_value = BaseColumn(name="review_rating_value", type=FLOAT)
+    review_rating_standard_form = BaseColumn(
+        name="review_rating_standard_form", type=TEXT
+    )
+    url = BaseColumn(name="url", type=TEXT)
+    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    url_rating_name = BaseColumn(name="url_rating_name", type=TEXT)
+    url_rating_value = BaseColumn(name="url_rating_value", type=FLOAT)
+    updated_date = BaseColumn(name="updated_date", type=DATETIME)
+    review_url = BaseColumn(name="review_url", type=TEXT)
+
+    # (required) List of the columns
+    columns = [
+        id,
+        url_id,
+        url_content_id,
+        claim_reviewed,
+        published_date,
+        publisher,
+        review_author,
+        review_rating_value,
+        review_rating_standard_form,
+        url,
+        normalized_url,
+        url_rating_name,
+        url_rating_value,
+        updated_date,
+        review_url,
+    ]
+    # (required) Primary key column name
+    pk = id.name
+    # (required) Addendum to be added to the end of the create command
+    schema_addendum = [f"PRIMARY KEY({pk})"]
+
+    @classmethod
+    def clean(cls, data: dict) -> dict:
+        full_data = {}
+        flattened = data["flattened_metadata"]
+        # Simplify some field names and remove CamelCase
+        standard_metadata = {
+            "id": flattened["id"],
+            "url_id": flattened["hash"],
+            "url_content_id": flattened["urlContentId"],
+            "claim_reviewed": flattened["claimReviewed"],
+            "published_date": flattened["publishedDate"],
+            "publisher": flattened["publisher"],
+            "review_author": flattened["reviews_author"],
+            "review_rating_value": flattened["reviews_reviewRatings_ratingValue"],
+            "review_rating_standard_form": flattened[
+                "reviews_reviewRatings_standardForm"
+            ],
+            "url": flattened["url"],
+            "normalized_url": flattened["normalized_url"],
+            "url_rating_name": flattened["urlReviews_reviewRatings_alternateName"],
+            "url_rating_value": flattened["urlReviews_reviewRatings_ratingValue"],
+        }
+        for k, v in standard_metadata.items():
+            if v == "":
+                full_data.update({k: None})
+            else:
+                full_data.update({k: v})
+        # When available, add data not in the original CSV
+        review_url = (None,)
+        if isinstance(data.get("reviews"), list) and len(data["reviews"]) > 0:
+            review_url = data["reviews"][0].get("reviewUrl")
+        full_data.update(
+            {"updated_date": data.get("updatedDate"), "review_url": review_url}
+        )
+        return full_data
+
+
+@dataclass
+class DeFactoTable(BaseTable):
+    """Dataclass holding information about the De Facto data source
+    It possesses class methods to (1) parse a CSV (as dict) row.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
+    # (required) Name of the table
+    name = "de_facto"
+    # (variable) All of the table's columns
+    id = BaseColumn(name="id", type=TEXT, **{"null": NOTNULL})
+    url_id = BaseColumn(name="url_id", type=VAR250, **{"null": NOTNULL})
+    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    themes = BaseColumn(name="themes", type=ARRAY)
+    tags = BaseColumn(name="tags", type=ARRAY)
+    review_url = BaseColumn(name="review_url", type=TEXT)
+    review_publication_date = BaseColumn(name="review_publication_date", type=DATETIME)
+    review_author = BaseColumn(name="review_author", type=TEXT)
+    claim = BaseColumn(name="claim", type=TEXT)
+    claim_url = BaseColumn(name="claim_url", type=TEXT)
+    claim_publication_date = BaseColumn(name="claim_publication_date", type=DATETIME)
+    claim_url_type = BaseColumn(name="claim_url_type", type=TEXT)
+    claim_title = BaseColumn(name="claim_title", type=TEXT)
+    claim_rating_value = BaseColumn(name="claim_rating_value", type=INT)
+    claim_rating_name = BaseColumn(name="claim_rating_name", type=TEXT)
+
+    # (required) List of the columns
+    columns = [
+        id,
+        url_id,
+        normalized_url,
+        themes,
+        tags,
+        review_url,
+        review_publication_date,
+        review_author,
+        claim,
+        claim_url,
+        claim_publication_date,
+        claim_url_type,
+        claim_title,
+        claim_rating_value,
+        claim_rating_name,
+    ]
+    # (required) Primary key column name
+    pk = id.name
+    # (required) Addendum to be added to the end of the create command
+    schema_addendum = [f"PRIMARY KEY({pk})"]
+
+    @classmethod
+    def clean(cls, data: dict) -> dict:
+        flattened_metadata = data["flattened_metadata"]
+        claimreview = data["claim-review"]
+        full_data = {
+            "id": data["id"],
+            "url_id": flattened_metadata["hash"],
+            "normalized_url": flattened_metadata["normalized_url"],
+            "themes": data["themes"],
+            "tags": data["tags"],
+            "review_url": data["claim-review"]["url"],
+            "review_publication_date": claimreview["datePublished"],
+            "review_author": claimreview["author"].get("name"),
+            "claim": flattened_metadata["claim-review_claimReviewed"],
+            "claim_url": flattened_metadata["claim-review_itemReviewed_appearance_url"],
+            "claim_publication_date": flattened_metadata[
+                "claim-review_itemReviewed_datePublished"
+            ],
+            "claim_url_type": claimreview["itemReviewed"]["appearance"].get("@type"),
+            "claim_title": claimreview["itemReviewed"]["appearance"]["headline"],
+            "claim_rating_value": flattened_metadata[
+                "claim-review_reviewRating_ratingValue"
+            ],
+            "claim_rating_name": flattened_metadata[
+                "claim-review_reviewRating_alternateName"
+            ],
+        }
+        for k, v in full_data.items():
+            if v == "":
+                v = None
+            full_data.update({k: v})
+        return full_data
+
+
+@dataclass
+class URLTable(BaseTable):
+    """Dataclass holding information about URLs.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    - schema_addendum (list[str]) : Array of additional instructions
+        to be used when creating the table schema
+    """
+
+    # (required) Name of the table
+    name = "normalized_url"
+    # (variable) All of the table's columns
+    id = BaseColumn(name="id", type=VAR250, **{"null": NOTNULL})
+    normalized_url_id = BaseColumn(
+        name="normalized_url_id", type=VAR250, **{"null": NOTNULL}
+    )
+    normalized_url = BaseColumn(name="normalized_url", type=TEXT, **{"null": NOTNULL})
+    archive_url = BaseColumn(name="archive_url", type=TEXT)
+    is_archived = BaseColumn(name="is_archived", type=TEXT)
+
+    # (required) List of the columns
+    columns = [id, normalized_url_id, normalized_url, archive_url, is_archived]
+    # (required) Primary key column name
+    pk = id.name
+    # (required) Addendum to be added to the end of the create command
+    schema_addendum = [f"PRIMARY KEY({pk})"]
+
+    @classmethod
+    def add_url_ids(cls, connection):
+        tables = ["de_facto", "science_feedback", "condor"]
+
+        def insert(table_name):
+            query = f"""
+            INSERT INTO {cls.name}
+            SELECT url_id AS normalized_url_id, url_id AS id, normalized_url
+            FROM {table_name}
+            GROUP BY url_id, normalized_url
+            ON CONFLICT (id) DO NOTHING
+            """
+            execute_query(connection=connection, query=query)
+
+        def add_foreign_key(table_name):
+            query = f"""
+            ALTER TABLE {table_name} ADD FOREIGN KEY (url_id) REFERENCES {cls.name} ({cls.id.name})
+            """
+            execute_query(connection=connection, query=query)
+
+        for table in tables:
+            insert(table_name=table)
+            add_foreign_key(table_name=table)

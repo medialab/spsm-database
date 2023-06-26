@@ -37,6 +37,10 @@ The database is being created with scripts in [src/build-database](src/build-dat
 $ python src/build-database/main.py --config config.yml
 ```
 
+### URL Table
+
+![tweet/tweet-query relation](doc/ER-Diagram_urltable.png)
+
 The script `src/build-database/main.py` establishes a connection to the database, creates tables, parses rows of the data files, and inserts selected Twitter data into the right table.
 
 1. Connection to the database
