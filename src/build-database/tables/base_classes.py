@@ -36,8 +36,6 @@ class BaseTable:
         self.columns: list[BaseColumn]
         # The name of the table
         self.name: str
-        # Additional commands to be added to the table's creation
-        self.schema_addendum: list = []
         # The table's primary key
         self.pk: str
 
@@ -73,16 +71,10 @@ class BaseTable:
         if not force:
             condition = " IF NOT EXISTS"
 
-        # Parse any additional constraints on the schema
-        if len(self.schema_addendum) > 0:
-            schema_addendum = ", " + ", ".join([a for a in self.schema_addendum])
-        else:
-            schema_addendum = ""
-
         # Using the class method column_schema, convert the column data into a string
         # and compose the full CREATE TABLE query
         query = f"""
-        CREATE TABLE{condition} {self.name}({self.column_schema()}{schema_addendum});
+        CREATE TABLE{condition} {self.name}({self.column_schema()}, PRIMARY KEY({self.pk}));
         """
 
         # If a connection was given, immediately execute the query
@@ -144,22 +136,37 @@ class BaseTable:
         """
 
         # Set up a protocol for when there is a conflict on the primary key
-        conflict = ""
+        conflict_condition = ""
         if on_conflict:
-            conflict = f" ON CONFLICT ({self.pk}) {on_conflict}"
+            conflict_condition = f" ON CONFLICT ({self.pk}) {on_conflict}"
 
         # Make values query parameter string
         values = data.values()
-        qps = ", ".join(["%s" for _ in values])
+        query_parameters = ", ".join(["%s" for _ in values])
 
         # Compose the INSERT - VALUES command
         query = f"""
-        INSERT INTO {self.name}({", ".join(data.keys())}) VALUES ({qps}){conflict};
+        INSERT INTO {self.name}({", ".join(data.keys())}) VALUES ({query_parameters}){conflict_condition};
         """
 
         # If a connection was given, immediately execute the query
         if connection:
             execute_query(connection=connection, query=query, values=tuple(values))
         # Otherwise, return composed query for some later use
+        else:
+            return query
+
+    def add_foreign_key(
+        self,
+        column: str,
+        references: tuple[str, str],
+        connection: connection | None = None,
+    ):
+        query = f"""
+        ALTER TABLE {self.name}
+        ADD FOREIGN KEY({column}) REFERENCES {references[0]}({references[1]})
+        """
+        if connection:
+            execute_query(connection=connection, query=query)
         else:
             return query
