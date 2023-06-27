@@ -7,8 +7,8 @@
 import click
 from connection.create_connection import connect
 from connection.parse_args import parse_config
-from insert_data.data_sources import insert_data_sources
-from insert_data.twitter import insert_tweets
+from build_tables.data_sources import insert_data_sources
+from build_tables.twitter import insert_tweets
 
 
 @click.group()

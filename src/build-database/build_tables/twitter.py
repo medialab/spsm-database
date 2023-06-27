@@ -19,14 +19,18 @@ def insert_tweets(connection: psycopg2_connection, file: str):
     tweet_table = TweetTable()
     tweet_query_table = TweetQueryTable()
     twitter_user_table = TwitterUserTable()
-    url_table = URLTable()
 
-    # Link the query table to the url table
-    url_table.add_foreign_key(
-        connection=connection,
-        column=url_table.tweet_search_title.name,
-        references=(tweet_query_table.name, tweet_query_table.query.name),
-    )
+    twitter_user_table.create(connection=connection)
+    tweet_query_table.create(connection=connection)
+    tweet_table.create(connection=connection)
+
+    # # Link the query table to the url table
+    # url_table = URLTable()
+    # url_table.add_foreign_key(
+    #     connection=connection,
+    #     column=url_table.tweet_search_title.name,
+    #     references=(tweet_query_table.name, tweet_query_table.query.name),
+    # )
 
     # Ingest data
     print(f"\nInserting data from: {file}")
@@ -54,3 +58,17 @@ def insert_tweets(connection: psycopg2_connection, file: str):
                 connection=connection,
                 on_conflict="DO NOTHING",
             )
+
+    # Link the tweet table to the user table
+    tweet_table.add_foreign_key(
+        column=tweet_table.user_id.name,
+        references=(twitter_user_table.name, twitter_user_table.pid.name),
+        connection=connection,
+    )
+
+    # Link the query relational table to the tweet table
+    tweet_query_table.add_foreign_key(
+        column=tweet_query_table.tweet_id.name,
+        references=(tweet_table.name, tweet_table.pid.name),
+        connection=connection,
+    )
