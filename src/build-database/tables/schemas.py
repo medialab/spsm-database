@@ -440,7 +440,7 @@ class DeFactoTable(BaseTable):
 
 
 @dataclass
-class URLTable(BaseTable):
+class EnrichedURLTitleDataset(BaseTable):
     """Dataclass holding information about URLs.
 
     Attributes required by the class's base (BaseTable):
@@ -450,23 +450,23 @@ class URLTable(BaseTable):
     """
 
     # (required) Name of the table
-    name = "url"
+    name = "enriched_url_title_dataset"
     # (variable) All of the table's columns
-    id = BaseColumn(name="id", type=VAR250, **{"null": NOTNULL})
+    url_id = BaseColumn(name="url_id", type=VAR250, **{"null": NOTNULL})
     normalized_url = BaseColumn(name="normalized_url", type=TEXT, **{"null": NOTNULL})
     archive_url = BaseColumn(name="archive_url", type=TEXT)
-    is_archived = BaseColumn(name="is_archived", type=TEXT)
-    tweet_search_title = BaseColumn(name="tweet_search_title", type=TEXT)
-    tweet_search_url = BaseColumn(name="tweet_search_url", type=TEXT)
+    title_from_youtube = BaseColumn(name="title_from_youtube", type=TEXT)
+    title_from_html = BaseColumn(name="title_from_html", type=TEXT)
+    title_from_webarchive = BaseColumn(name="title_from_webarchive", type=TEXT)
 
     # (required) List of the columns
     columns = [
-        id,
+        url_id,
         normalized_url,
         archive_url,
-        is_archived,
-        tweet_search_title,
-        tweet_search_url,
+        title_from_youtube,
+        title_from_html,
+        title_from_webarchive,
     ]
     # (required) Primary key column name
-    pk = id.name
+    pk = url_id.name

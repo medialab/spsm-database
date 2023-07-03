@@ -35,7 +35,7 @@ The database is being created with scripts in [src/build-database](src/build-dat
 
 ### Step 1. Import data from CSV files
 
-Create initial tables from CSV files. To guarantee that the database is always constructed in the same way, declare in the config file the fixed CSV files used for the import. The following, finalized data files have been used and are stored on a private git repository: [Condor](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/condor_full.csv), [Completed URLs](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/unique_completed_urls_from_condor_set_of_duplicate_urls.csv), [Science Feedback](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/science_feedback_full.json), [De Facto](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/defacto_full.json).
+Create initial tables from CSV files. To guarantee that the database is always constructed in the same way, declare in the config file the fixed CSV files used for the import. The following, finalized data files have been used and are stored on a private git repository: [Condor](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/condor_full.csv), [Completed URLs](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/unique_completed_urls_from_condor_set_of_duplicate_urls.csv), [URLs' enriched titles](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/url_title_enrichment.csv), [Science Feedback](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/science_feedback_full.json), [De Facto](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/defacto_full.json).
 
 ```yaml
 ---
@@ -46,45 +46,43 @@ data sources:
   de facto: "/PATH/"
 ```
 
-#### Import finalized Condor dataset
+#### Import finalized Condor dataset.
 
 ```shell
 $ python src/build-database/import_sources.py config.yml condor
 ```
 
-#### Import constructed dataset of completed URLs
-
-```shell
-$ python src/build-database/import_sources.py config.yml completed-urls
-```
-
-#### Import finalized De Facto dataset
+#### Import finalized De Facto dataset.
 
 ```shell
 $ python src/build-database/import_sources.py config.yml de-facto
 ```
 
-#### Import finalized Science Feedback dataset
+#### Import finalized Science Feedback dataset.
 
 ```shell
 $ python src/build-database/import_sources.py config.yml science
 ```
 
----
+#### Import table of URLs with enriched titles.
 
-### URL Table
-
-Once the CSV files have been imported into SQL tables, we switch to the script `src/build-database/main.py` and develop more SQL tables as well as relationships between the tables.
-
-### Step 1. Build URL table
-
-By working with the imported completed URLs data and the Condor data, derive an SQL table of completed URLs that has a relationship to the Condor table. Then, by parsing all the URLs stored across the 4 tables (`condor`, `science_feedback`, `de_facto`, `completed_urls`), derive an SQL table of URL entities. Both of these tasks are accomplished in the following command:
+Enriched titles are (1) scraped from the HTML, (2) requested from YouTube, and/or (3) from WebArchive.
 
 ```shell
-$ python src/build-database/main.py config sources
+$ python src/build-database/import_sources.py config.yml enriched-titles
 ```
 
-TODO: Add further steps that import data from a CSV file containing supplemental information about the URL entity, such as the scraped web page title, the YouTube ID, etc.
+#### Update the 3 former sources table with the enriched titles from the imported dataset.
+
+```shell
+$ python src/build-database/main.py config.yml sources
+```
+
+---
+
+### Claim Table
+
+TO DO
 
 ### Step 2. Import Tweet data
 

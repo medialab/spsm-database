@@ -1,9 +1,9 @@
 from parse_files import (
-    condor,
     completed_urls_dataset,
+    condor,
     de_facto,
     science_feedback,
-    normalized_url,
     tweet,
     twitter_user,
+    url_with_added_titles,
 )

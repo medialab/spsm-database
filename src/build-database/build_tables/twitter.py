@@ -8,7 +8,7 @@ import csv
 
 import casanova
 from psycopg2.extensions import connection as psycopg2_connection
-from tables.schemas import TweetQueryTable, TweetTable, TwitterUserTable, URLTable
+from tables.schemas import TweetQueryTable, TweetTable, TwitterUserTable
 from tqdm import tqdm
 from parse_files.tweet import clean as tweet_clean
 from parse_files.twitter_user import clean as user_clean

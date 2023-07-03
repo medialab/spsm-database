@@ -53,5 +53,13 @@ def completed_urls(ctx):
     parse_files.completed_urls_dataset.insert(connection=connection, file=file)
 
 
+@cli.command("enriched-titles")
+@click.pass_context
+def titles(ctx):
+    connection = ctx.obj["connection"]
+    file = ctx.obj["files"]["enriched titles"]
+    parse_files.url_with_added_titles.insert(connection=connection, file=file)
+
+
 if __name__ == "__main__":
     cli(obj={})
