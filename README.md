@@ -76,11 +76,11 @@ $ python src/build-database/import_sources.py config.yml enriched-titles
 
 ### Step 2. Use imported data to enrich and build tables
 
-#### Update the 3 former sources tables with each URL's enriched titles.
-
 ```shell
 $ python src/build-database/main.py config.yml sources
 ```
+
+#### Update the 3 former sources tables with each URL's enriched titles.
 
 Example of result in Condor table:
 
