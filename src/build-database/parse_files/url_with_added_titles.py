@@ -1,7 +1,10 @@
-import casanova
-from tables.schemas import EnrichedURLTitleDataset
 import csv
+
+import casanova
 from tqdm import tqdm
+
+from tables.schemas import EnrichedURLTitleDataset
+from utils import clear_table
 
 
 def clean(data: dict) -> dict:
@@ -29,9 +32,3 @@ def insert(connection, file):
             table.insert_values(
                 data=clean(data=row), connection=connection, on_conflict="DO NOTHING"
             )
-
-
-def clear_table(connection, table):
-    table.create(connection=connection)
-    table.drop(connection=connection)
-    table.create(connection=connection)

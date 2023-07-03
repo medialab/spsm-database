@@ -44,6 +44,7 @@ data sources:
   completed urls: "/PATH/"
   science feedback: "/PATH/"
   de facto: "/PATH/"
+  enriched titles: "/PATH/"
 ```
 
 #### Import finalized Condor dataset.

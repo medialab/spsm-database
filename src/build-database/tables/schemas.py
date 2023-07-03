@@ -470,3 +470,28 @@ class EnrichedURLTitleDataset(BaseTable):
     ]
     # (required) Primary key column name
     pk = url_id.name
+
+
+@dataclass
+class ClaimTable(BaseTable):
+    """Dataclass holding information about URLs.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    """
+
+    # (required) Name of the table
+    name = "claim"
+    # (variable) All of the table's columns
+    title = BaseColumn(name="title", type=TEXT)
+    normalized_url = BaseColumn(name="normalized_url", type=TEXT, **{"null": NOTNULL})
+    condor_ids = BaseColumn(name="condor_id", type="INT[]")
+    defacto_ids = BaseColumn(name="de_facto_id", type=ARRAY)
+    science_ids = BaseColumn(name="science_feedback_id", type="VARCHAR[]")
+
+    # (required) List of the columns
+    columns = [title, normalized_url, condor_ids, defacto_ids, science_ids]
+    # (required) Primary key column name
+    pk = f"{title.name},{normalized_url.name}"

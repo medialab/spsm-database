@@ -1,7 +1,9 @@
 import json
 
-from tables.schemas import DeFactoTable
 from tqdm import tqdm
+
+from tables.schemas import DeFactoTable
+from utils import clear_table
 
 
 def clean(data: dict) -> dict:
@@ -49,9 +51,3 @@ def insert(connection, file):
                 connection=connection,
                 on_conflict="DO NOTHING",
             )
-
-
-def clear_table(connection, table):
-    table.create(connection=connection)
-    table.drop(connection=connection)
-    table.create(connection=connection)
