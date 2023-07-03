@@ -72,19 +72,27 @@ Enriched titles are (1) scraped from the HTML, (2) requested from YouTube, and/o
 $ python src/build-database/import_sources.py config.yml enriched-titles
 ```
 
-#### Update the 3 former sources table with the enriched titles from the imported dataset.
+---
+
+### Step 2. Update the 3 former sources tables with each URL's enriched titles
 
 ```shell
 $ python src/build-database/main.py config.yml sources
 ```
 
+Example of result in Condor table:
+
+| id   | condor_url_rid  | url_id                           | normalized_url                  | share_title | ... | title_from_youtube                                      |
+| ---- | --------------- | -------------------------------- | ------------------------------- | ----------- | --- | ------------------------------------------------------- |
+| 8793 | i130zeund5dnbv1 | 7f719769ddf6b68b0327f0838d53348b | youtube.com/watch?v=ua1RPdQchsc |             | ... | Burger King Admits To Using Horse Meat In Their Burgers |
+
 ---
 
-### Claim Table
+### Step 3. Build table of Claims
 
 TO DO
 
-### Step 2. Import Tweet data
+### Step 4. Import Tweet data
 
 Parse files of tweet results and populate SQL tables for the `tweet`, the `twitter_user`, and the relationship between a TWeet and the search query that returned it, `tweet_query`.
 
