@@ -108,7 +108,7 @@ TODO: Add SQL to build `url` table out of tables `de_facto`, `science_feedback`,
 
 Steps:
 
-1. Create URL table with primary key on normalized URL.
+1. Create URL table with an auto-incremengint primary key, allowing for duplicates of the same URL if multiple sources have it and/or if the same source has it more than once.
 2. Insert data from 4 dependent tables into the relational `url` table.
 3. Alter the table with the tweet-search version of the URL (e.g. `google.com` -> `url:"google.com"`)
 4. Alter the table again with the few hundred modified tweet-search versions, resulting from a mistake during the collection process where the parameter was not implemented.
