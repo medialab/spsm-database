@@ -196,3 +196,46 @@ Parse files of tweet results and populate SQL tables for the `tweet`, the `twitt
 ```shell
 $ python src/build-database/main.py config tweets /PATH/TO/RESULTS/FILE
 ```
+
+## Querying the relational database
+
+Example research question: _What tweets circulated the title of a claim that Condor fact-checkers had determined was "missing context"?_
+
+The following selection stays the same whenever selecting tweets from the database based on claim's conditions:
+
+```sql
+select tweet.*
+from tweet
+inner join tweet_query on tweet_query.tweet_id = tweet.id
+inner join title on title.tweet_search_title = tweet_query.query
+inner join claim_title on claim_title.title_text = title.title_text
+inner join condor on condor.id = claim_title.condor_id'
+```
+
+And the selection is simply modified with a condition at the end:
+
+```sql
+where condor.tpfc_rating like '%missing context%'
+```
+
+Data can also be selected based on the ID of a claim in the database, which itself can be selected in some other way--perhaps in an operation (in R) outside the database.
+
+For example, say you have determined you need to look at users who circulated a claim from the `science_feedback` table with the ID `12345`.
+
+You would use the following basic selection:
+
+```sql
+select twitter_user.*
+from tweet
+inner join tweet_query on tweet_query.tweet_id = tweet.id
+inner join title on title.tweet_search_title = tweet_query.query
+inner join claim_title on claim_title.title_text = title.title_text
+inner join science_feedback on science_feedback.id = claim_title.science_feedback_id
+inner join twitter_user on twitter_user.id = tweet.user_id
+```
+
+And you would append it with your condition:
+
+```sql
+where science_feedback.id = '12345'
+```
