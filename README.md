@@ -74,11 +74,25 @@ Enriched titles are (1) scraped from the HTML, (2) requested from YouTube, and/o
 $ python src/build-database/import_sources.py config.yml enriched-titles
 ```
 
+The [finalized CSV file](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/url_title_enrichment.csv) has the following data fields:
+
+| url_id                      | sources                                                     | normalized_url      | archive_url                                                 | condor_share_title                                 | yt_video_headline                                         | webpage_title                          | webarchive_search_title                                               |
+| --------------------------- | ----------------------------------------------------------- | ------------------- | ----------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
+| Hash of the normalized URL. | Concatenation of sources which contain this normalized URL. | The normalized URL. | An un-normalized version of the URL for archiving purposes. | The title given to this URL in the Condor dataset. | If the URL is of a YouTube video, the title of the video. | The title scraped from the URL's HTML. | The title found on an archived version of the website on Web Archive. |
+
 ### Import table of queried titles and their original, pre-cleaned versions.
 
 ```shell
 $ python src/build-database/import_sources.py config.yml queried-titles
 ```
+
+TODO: Create this finalized CSV file.
+
+CSV file must have the following columns:
+
+| title_text                                                                                      | tweet_search_title                        | queried                                                      |
+| ----------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| Text (with leading and trailing white spaces removed) of the original title, prior to cleaning. | Text of the cleaned version of the title. | True or False denoting whether or not the title was queried. |
 
 ---
 
