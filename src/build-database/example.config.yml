@@ -5,6 +5,10 @@ connection:
   db_password: "user.password"
   db_port: "PostgreSQL database port (usually 5432)"
   db_host: "PostgreSQL database host"
-data file absolute paths:
-  tweets:
-    - "/absolute/path/to/tweet/file.csv"
+data sources:
+  condor: "/PATH/"
+  completed urls: "/PATH/"
+  science feedback: "/PATH/"
+  de facto: "/PATH/"
+  enriched titles: "/PATH/"
+  titles: "/PATH/"

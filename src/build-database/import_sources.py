@@ -21,7 +21,7 @@ def cli(ctx, config):
     ctx.obj["files"] = info["data sources"]
 
 
-@cli.command()
+@cli.command("condor")
 @click.pass_context
 def condor(ctx):
     connection = ctx.obj["connection"]
@@ -37,7 +37,7 @@ def defacto(ctx):
     parse_files.de_facto.insert(connection=connection, file=file)
 
 
-@cli.command()
+@cli.command("science")
 @click.pass_context
 def science(ctx):
     connection = ctx.obj["connection"]
@@ -55,10 +55,18 @@ def completed_urls(ctx):
 
 @cli.command("enriched-titles")
 @click.pass_context
-def titles(ctx):
+def enriched_titles(ctx):
     connection = ctx.obj["connection"]
     file = ctx.obj["files"]["enriched titles"]
-    parse_files.url_with_added_titles.insert(connection=connection, file=file)
+    parse_files.url_with_enriched_titles.insert(connection=connection, file=file)
+
+
+@cli.command("queried-titles")
+@click.pass_context
+def queried_titles(ctx):
+    connection = ctx.obj["connection"]
+    file = ctx.obj["files"]["titles"]
+    parse_files.titles.insert(connection=connection, file=file)
 
 
 if __name__ == "__main__":

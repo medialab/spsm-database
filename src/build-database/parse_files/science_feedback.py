@@ -12,7 +12,7 @@ def clean(data: dict) -> dict:
     # Simplify some field names and remove CamelCase
     standard_metadata = {
         "id": flattened["id"],
-        "url_id": flattened["hash"],
+        "normalized_claim_url_hash": flattened["hash"],
         "url_content_id": flattened["urlContentId"],
         "claim_reviewed": flattened["claimReviewed"],
         "published_date": flattened["publishedDate"],
@@ -21,16 +21,17 @@ def clean(data: dict) -> dict:
         "review_rating_value": flattened["reviews_reviewRatings_ratingValue"],
         "review_rating_standard_form": flattened["reviews_reviewRatings_standardForm"],
         "url": flattened["url"],
-        "normalized_url": flattened["normalized_url"],
+        "normalized_claim_url": flattened["normalized_url"],
         "url_rating_name": flattened["urlReviews_reviewRatings_alternateName"],
         "url_rating_value": flattened["urlReviews_reviewRatings_ratingValue"],
     }
     for k, v in standard_metadata.items():
         if v == "":
-            full_data.update({k: None})
-        else:
-            full_data.update({k: v})
-    # When available, add data not in the original CSV
+            v = None
+        elif isinstance(v, str):
+            v = v.strip()
+        full_data.update({k: v})
+    # When available, add data not in the original CSV / in the enriched JSON
     review_url = (None,)
     if isinstance(data.get("reviews"), list) and len(data["reviews"]) > 0:
         review_url = data["reviews"][0].get("reviewUrl")

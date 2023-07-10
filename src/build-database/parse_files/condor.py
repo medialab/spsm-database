@@ -10,10 +10,20 @@ from utils import clear_table
 def clean(data: dict) -> dict:
     condor_id = data.pop("url_rid")
     url_id = data.pop("hash")
-    data.update({"condor_url_rid": condor_id, "url_id": url_id})
+    normalized_url = data.pop("normalized_url")
+    data.update(
+        {
+            "condor_url_rid": condor_id,
+            "normalized_clean_url_hash": url_id,
+            "normalized_clean_url": normalized_url,
+        }
+    )
     for k, v in data.items():
         if v == "":
-            data.update({k: None})
+            v = None
+        elif isinstance(v, str):
+            v = v.strip()
+        data.update({k: v})
     return data
 
 

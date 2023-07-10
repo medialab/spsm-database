@@ -39,16 +39,6 @@ class BaseTable:
         # The table's primary key
         self.pk: str
 
-    def column_schema(self) -> str:
-        """Convert the array of columns into a string
-        that can be used in the SQL query to create
-        the table.
-        """
-        schema = []
-        for column in self.columns:
-            schema.append(column.string())
-        return ", ".join(schema)
-
     def create(
         self,
         force: bool = False,
@@ -71,10 +61,12 @@ class BaseTable:
         if not force:
             condition = " IF NOT EXISTS"
 
+        cols = ", ".join([c.string() for c in self.columns])
+
         # Using the class method column_schema, convert the column data into a string
         # and compose the full CREATE TABLE query
         query = f"""
-        CREATE TABLE{condition} {self.name}({self.column_schema()}, PRIMARY KEY({self.pk}));
+        CREATE TABLE{condition} {self.name}({cols}, PRIMARY KEY({self.pk}));
         """
 
         # If a connection was given, immediately execute the query
@@ -162,9 +154,11 @@ class BaseTable:
         references: tuple[str, str],
         connection: connection | None = None,
     ):
+        fk_name = f"{self.name}_{column}_{references[0]}_{references[1]}"
         query = f"""
-        ALTER TABLE {self.name}
-        ADD FOREIGN KEY({column}) REFERENCES {references[0]}({references[1]})
+        ALTER TABLE {self.name} DROP CONSTRAINT IF EXISTS {fk_name};
+        ALTER TABLE {self.name} ADD CONSTRAINT {fk_name}
+        FOREIGN KEY({column}) REFERENCES {references[0]}({references[1]})
         """
         if connection:
             execute_query(connection=connection, query=query)

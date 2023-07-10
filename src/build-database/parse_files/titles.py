@@ -3,26 +3,24 @@ import csv
 import casanova
 from tqdm import tqdm
 
-from tables.schemas import EnrichedURLTitleDataset
+from tables.schemas import TitlesTable, ClaimTitleTable
 from utils import clear_table
 
 
 def clean(data: dict) -> dict:
-    for k, v in data.items():
-        if v == "":
-            data.update({k: None})
+    skip = data.pop("queried")
+    queried = False
+    if skip == "0":
+        queried = True
     return {
-        "url_id": data["url_id"],
-        "normalized_url": data["normalized_url"],
-        "archive_url": data["archive_url"],
-        "title_from_youtube": data["yt_video_headline"],
-        "title_from_html": data["webpage_title"],
-        "title_from_webarchive": data["webarchive_search_title"],
+        "title_text": data["title_text"].strip(),
+        "tweet_search_title": data["tweet_search_title"],
+        "queried": queried,
     }
 
 
 def insert(connection, file):
-    table = EnrichedURLTitleDataset()
+    table = TitlesTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data from Dataset to table: {table.name}\n{file}")
     file_length = casanova.reader.count(file)
@@ -32,3 +30,9 @@ def insert(connection, file):
             table.insert_values(
                 data=clean(data=row), connection=connection, on_conflict="DO NOTHING"
             )
+    rel_table = ClaimTitleTable()
+    rel_table.add_foreign_key(
+        column=rel_table.title.name,
+        references=(table.name, table.title.name),
+        connection=connection,
+    )

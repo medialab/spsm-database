@@ -5,5 +5,6 @@ from parse_files import (
     science_feedback,
     tweet,
     twitter_user,
-    url_with_added_titles,
+    url_with_enriched_titles,
+    titles,
 )

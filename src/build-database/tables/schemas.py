@@ -6,7 +6,7 @@
 #
 from dataclasses import dataclass
 
-from tables.base_classes import BaseColumn, BaseTable, execute_query
+from tables.base_classes import BaseColumn, BaseTable
 
 # To help prevent spelling errors,
 # constants of SQL data types
@@ -28,9 +28,6 @@ FLOAT = "FLOAT"
 @dataclass
 class TwitterUserTable(BaseTable):
     """Dataclass holding information about the twitter_user table.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data, and (2) compose a string that says what
-    to do if there is a conflict on the table's constraints.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -92,9 +89,6 @@ class TwitterUserTable(BaseTable):
 @dataclass
 class TweetTable(BaseTable):
     """Dataclass holding information about the tweet table.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data, and (2) compose a string that says what
-    to do if there is a conflict on the table's constraints.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -200,8 +194,6 @@ class TweetTable(BaseTable):
 @dataclass
 class TweetQueryTable(BaseTable):
     """Dataclass holding information about the tweet_query table.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -222,10 +214,9 @@ class TweetQueryTable(BaseTable):
 
 
 @dataclass
-class CompletedURLDatasetTable(BaseTable):
-    """Dataclass holding information about the condor data source.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data.
+class CompletedURLTable(BaseTable):
+    """Dataclass holding information about URLs from Condor
+    that were augmented or "completed" to be more specific.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -237,63 +228,30 @@ class CompletedURLDatasetTable(BaseTable):
     name = "completed_urls_dataset"
     # (variable) All of the table's columns
     condor_url_rid = BaseColumn(name="condor_url_rid", type=VAR20)
-    url_id = BaseColumn(name="url_id", type=VAR250)
+    completed_url_hash = BaseColumn(name="completed_url_hash", type=VAR250)
     completed_url = BaseColumn(name="completed_url", type=TEXT)
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
-    original_url_id = BaseColumn(name="original_url_id", type=VAR250)
-
-    # (required) List of the columns
-    columns = [
-        condor_url_rid,
-        url_id,
-        completed_url,
-        normalized_url,
-        original_url_id,
-    ]
-    # (required) Primary key column name
-    pk = f"{url_id.name}, {completed_url.name}"
-
-
-@dataclass
-class CompletedURLsTable(BaseTable):
-    """Dataclass holding information about the condor data source.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data.
-
-    Attributes required by the class's base (BaseTable):
-    - name (str) : Name of the table
-    - columns (list[BaseColumn]) : Array of BaseColumn objects
-    - pk (str) : Primary key / name of the column
-    """
-
-    # (required) Name of the table
-    name = "completed_urls"
-    # (variable) All of the table's columns
+    normalized_completed_url = BaseColumn(name="normalized_completed_url", type=TEXT)
+    hash_of_original_normalized_url = BaseColumn(
+        name="hash_of_original_normalized_url", type=VAR250
+    )
     condor_table_id = BaseColumn(name="condor_table_id", type=INT)
-    condor_url_rid = BaseColumn(name="condor_url_rid", type=VAR20)
-    url_id = BaseColumn(name="url_id", type=VAR250)
-    completed_url = BaseColumn(name="completed_url", type=TEXT)
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
-    original_url_id = BaseColumn(name="original_url_id", type=VAR250)
 
     # (required) List of the columns
     columns = [
-        url_id,
-        condor_table_id,
-        condor_url_rid,
+        completed_url_hash,
         completed_url,
-        normalized_url,
-        original_url_id,
+        normalized_completed_url,
+        hash_of_original_normalized_url,
+        condor_url_rid,
+        condor_table_id,
     ]
     # (required) Primary key column name
-    pk = url_id.name
+    pk = completed_url_hash.name
 
 
 @dataclass
 class CondorTable(BaseTable):
     """Dataclass holding information about the condor data source.
-    It possesses class methods to (1) parse a CSV (as dict) row and
-    recast/clean the data.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -306,8 +264,10 @@ class CondorTable(BaseTable):
     # (variable) All of the table's columns
     id = BaseColumn(name="id", type=SERIAL, **{"null": NOTNULL})
     condor_url_rid = BaseColumn(name="condor_url_rid", type=VAR20)
-    url_id = BaseColumn(name="url_id", type=VAR250)
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    normalized_clean_url_hash = BaseColumn(
+        name="normalized_clean_url_hash", type=VAR250
+    )
+    normalized_clean_url = BaseColumn(name="normalized_clean_url", type=TEXT)
     clean_url = BaseColumn(name="clean_url", type=TEXT)
     first_post_time = BaseColumn(name="first_post_time", type=DATETIME)
     share_title = BaseColumn(name="share_title", type=TEXT)
@@ -319,8 +279,8 @@ class CondorTable(BaseTable):
     columns = [
         id,
         condor_url_rid,
-        url_id,
-        normalized_url,
+        normalized_clean_url_hash,
+        normalized_clean_url,
         clean_url,
         first_post_time,
         share_title,
@@ -335,8 +295,7 @@ class CondorTable(BaseTable):
 @dataclass
 class ScienceFeedbackTable(BaseTable):
     """Dataclass holding information about the science feedback data
-    source. It possesses class methods to (1) parse a CSV (as dict)
-    row and recast/clean the data.
+    source.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -348,7 +307,9 @@ class ScienceFeedbackTable(BaseTable):
     name = "science_feedback"
     # (variable) All of the table's columns
     id = BaseColumn(name="id", type=VAR20, **{"null": NOTNULL})
-    url_id = BaseColumn(name="url_id", type=VAR250, **{"null": NOTNULL})
+    url_id = BaseColumn(
+        name="normalized_claim_url_hash", type=VAR250, **{"null": NOTNULL}
+    )
     url_content_id = BaseColumn(name="url_content_id", type=VAR20, **{"null": NOTNULL})
     claim_reviewed = BaseColumn(name="claim_reviewed", type=TEXT)
     published_date = BaseColumn(name="published_date", type=DATETIME)
@@ -359,7 +320,7 @@ class ScienceFeedbackTable(BaseTable):
         name="review_rating_standard_form", type=TEXT
     )
     url = BaseColumn(name="url", type=TEXT)
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    normalized_url = BaseColumn(name="normalized_claim_url", type=TEXT)
     url_rating_name = BaseColumn(name="url_rating_name", type=TEXT)
     url_rating_value = BaseColumn(name="url_rating_value", type=FLOAT)
     updated_date = BaseColumn(name="updated_date", type=DATETIME)
@@ -390,7 +351,6 @@ class ScienceFeedbackTable(BaseTable):
 @dataclass
 class DeFactoTable(BaseTable):
     """Dataclass holding information about the De Facto data source
-    It possesses class methods to (1) parse a CSV (as dict) row.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -402,8 +362,10 @@ class DeFactoTable(BaseTable):
     name = "de_facto"
     # (variable) All of the table's columns
     id = BaseColumn(name="id", type=TEXT, **{"null": NOTNULL})
-    url_id = BaseColumn(name="url_id", type=VAR250, **{"null": NOTNULL})
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT)
+    url_id = BaseColumn(
+        name="normalized_claim_url_hash", type=VAR250, **{"null": NOTNULL}
+    )
+    normalized_url = BaseColumn(name="normalized_claim_url", type=TEXT)
     themes = BaseColumn(name="themes", type=ARRAY)
     tags = BaseColumn(name="tags", type=ARRAY)
     review_url = BaseColumn(name="review_url", type=TEXT)
@@ -441,7 +403,7 @@ class DeFactoTable(BaseTable):
 
 @dataclass
 class EnrichedURLTitleDataset(BaseTable):
-    """Dataclass holding information about URLs.
+    """Dataclass holding information about URLs and their enriched titles.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -473,8 +435,8 @@ class EnrichedURLTitleDataset(BaseTable):
 
 
 @dataclass
-class ClaimTable(BaseTable):
-    """Dataclass holding information about URLs.
+class ClaimTitleTable(BaseTable):
+    """Dataclass holding relation between a claim and a title.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -483,15 +445,39 @@ class ClaimTable(BaseTable):
     """
 
     # (required) Name of the table
-    name = "claim"
+    name = "claim_title"
     # (variable) All of the table's columns
-    title = BaseColumn(name="title", type=TEXT)
-    normalized_url = BaseColumn(name="normalized_url", type=TEXT, **{"null": NOTNULL})
-    condor_ids = BaseColumn(name="condor_id", type="INT[]")
-    defacto_ids = BaseColumn(name="de_facto_id", type=ARRAY)
-    science_ids = BaseColumn(name="science_feedback_id", type="VARCHAR[]")
+    id = BaseColumn(name="id", type=SERIAL, **{"null": NOTNULL})
+    title = BaseColumn(name="title_text", type=TEXT)
+    title_type = BaseColumn(name="title_type", type=TEXT)
+    condor_id = BaseColumn(name="condor_id", type=INT)
+    defacto_id = BaseColumn(name="de_facto_id", type=TEXT)
+    science_id = BaseColumn(name="science_feedback_id", type=VAR20)
 
     # (required) List of the columns
-    columns = [title, normalized_url, condor_ids, defacto_ids, science_ids]
+    columns = [id, title, title_type, condor_id, defacto_id, science_id]
     # (required) Primary key column name
-    pk = f"{title.name},{normalized_url.name}"
+    pk = id.name
+
+
+@dataclass
+class TitlesTable(BaseTable):
+    """Dataclass holding data about every claim title.
+
+    Attributes required by the class's base (BaseTable):
+    - name (str) : Name of the table
+    - columns (list[BaseColumn]) : Array of BaseColumn objects
+    - pk (str) : Primary key / name of the column
+    """
+
+    # (required) Name of the table
+    name = "title"
+    # (variable) All of the table's columns
+    title = BaseColumn(name="title_text", type=TEXT, **{"null": NOTNULL})
+    tweet_search_title = BaseColumn(name="tweet_search_title", type=TEXT)
+    skip = BaseColumn(name="queried", type=BOOL)
+
+    # (required) List of the columns
+    columns = [title, tweet_search_title, skip]
+    # (required) Primary key column name
+    pk = title.name

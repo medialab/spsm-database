@@ -11,8 +11,8 @@ def clean(data: dict) -> dict:
     claimreview = data["claim-review"]
     full_data = {
         "id": data["id"],
-        "url_id": flattened_metadata["hash"],
-        "normalized_url": flattened_metadata["normalized_url"],
+        "normalized_claim_url_hash": flattened_metadata["hash"],
+        "normalized_claim_url": flattened_metadata["normalized_url"],
         "themes": data["themes"],
         "tags": data["tags"],
         "review_url": data["claim-review"]["url"],
@@ -35,6 +35,8 @@ def clean(data: dict) -> dict:
     for k, v in full_data.items():
         if v == "":
             v = None
+        elif isinstance(v, str):
+            v = v.strip()
         full_data.update({k: v})
     return full_data
 
