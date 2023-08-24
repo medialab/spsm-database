@@ -155,6 +155,115 @@ erDiagram
 
 ## Step 2. Merge data sources
 
+### Result of merge
+
+```mermaid
+erDiagram
+   claims ||--|| dataset_condor: ""
+   dataset_condor {
+      int id PK
+      varchar condor_url_rid
+      varchar normalized_clean_url_hash
+      string normalized_clean_url
+      string clean_url
+      timestamp first_post_time
+      string share_title
+      string tpfc_rating
+      varchar public_shares_top_country
+      string archive_url
+      string title_from_condor
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+   }
+
+   claims ||--|| dataset_science_feedback: ""
+   dataset_science_feedback {
+      varchar id PK
+      varchar normalized_claim_url_hash
+      varchar url_content_id
+      string claim_reviewed
+      timestamp published_date
+      string publisher
+      string review_author
+      float review_rating_value
+      string review_rating_standard_form
+      string url
+      string normalized_url
+      string url_rating_name
+      float url_rating_value
+      timestamp updated_date
+      string review_url
+      string archive_url
+      string title_from_condor
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+   }
+
+  claims ||--|| dataset_de_facto: ""
+   dataset_de_facto {
+      string id PK
+      varchar normalized_claim_url_hash
+      string normalized_claim_url
+      array themes
+      array tags
+      string review_url
+      timestamp review_publication_date
+      string review_author
+      string claim
+      string claim_url
+      timestamp claim_publication_date
+      string claim_url_type
+      string claim_title
+      int claim_rating_value
+      string claim_rating_name
+      string archive_url
+      string title_from_condor
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+
+   }
+
+
+   dataset_condor }o--|| dataset_completed_urls : ""
+
+   dataset_completed_urls {
+      varchar completed_normalized_url_hash PK
+      string completed_normalized_url
+      varchar hash_of_original_normalized_url
+      varchar condor_url_rid
+      int condor_table_id FK
+   }
+
+   claims {
+      int id PK
+      int condor_table_id FK
+      string defacto_table_id FK
+      varchar science_table_id FK
+      string normalized_url
+      varchar normalized_url_hash
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+      string title_from_condor
+      integer universal_claim_rating
+      varchar inferred_language
+   }
+
+   exploded_urls_and_titles }|--|{ claims: ""
+
+   exploded_urls_and_titles {
+      int claim_id FK
+      string normalized_url
+      string title_text
+      string title_type
+   }
+
+
+```
+
 ## Set Up
 
 Set up the Python environment.
