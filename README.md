@@ -31,4 +31,4 @@ Tools to create, update, and enrich the SPSM project's data.
 
 ## Database
 
-[See documentation here](src/build-database).
+### [See documentation here](src/build-database#database).
