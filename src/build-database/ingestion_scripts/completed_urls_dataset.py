@@ -42,6 +42,10 @@ def insert(connection, file):
                 on_conflict="DO NOTHING",
             )
 
+    print(
+        f"\nRelating newly created table '{table.name}' to table '{CondorDatasetTable().name}'."
+    )
+    print(f"{table.name}.condor_table_id = {CondorDatasetTable().name}.id")
     link_to_condor_table(connection=connection)
     return table
 
@@ -50,11 +54,9 @@ def link_to_condor_table(connection):
     completed_url_table = CompletedURLDatasetTable()
     condor_table = CondorDatasetTable()
 
-    task = """
-If a completed URL has a Condor URL RID, update its Condor
-table ID foreign key by joining on the original URL hash as
-well as the Condor URL RID.
-    """
+    # If a completed URL has a Condor URL RID, update its Condor
+    # table ID foreign key by joining on the original URL hash as
+    # well as the Condor URL RID.
     query = f"""
     UPDATE {completed_url_table.name}
     SET condor_table_id = s.id
@@ -71,14 +73,11 @@ well as the Condor URL RID.
     AND {completed_url_table.name}.hash_of_original_normalized_url = s.hash_of_original_normalized_url
     AND {completed_url_table.name}.condor_url_rid = s.condor_url_rid
     """
-    print(task, query)
     execute_query(connection=connection, query=query)
 
-    task = """
-If a completed URL does not have a Condor URL RID, update its
-Condor table ID by joining on the original URL hash as well as
-the lack of a Condor URL RID.
-    """
+    # If a completed URL does not have a Condor URL RID, update its
+    # Condor table ID by joining on the original URL hash as well as
+    # the lack of a Condor URL RID.
     query = f"""
     UPDATE {completed_url_table.name}
     SET condor_table_id = s.id
@@ -93,7 +92,6 @@ the lack of a Condor URL RID.
     WHERE s.condor_url_rid IS NULL
     AND {completed_url_table.name}.hash_of_original_normalized_url = s.hash_of_original_normalized_url
     """
-    print(task, query)
     execute_query(connection=connection, query=query)
 
     # Add a foreign key relating the Condor table's ID with

@@ -47,7 +47,7 @@ class EnrichedTitleDatasetTable(BaseTable):
 
 def setup_enriched_title_dataset_table(connection: connection, dataset: str):
     title_table = EnrichedTitleDatasetTable()
-    print(f"Creating data of enriched titles in table {title_table.name}")
+    print(f"Creating table of enriched titles in table {title_table.name}")
     clear_table(connection=connection, table=title_table)
     file_length = casanova.reader.count(dataset)
     with open(dataset) as f:
@@ -67,13 +67,15 @@ def add_enriched_titles(
 ):
     title_table = EnrichedTitleDatasetTable()
 
-    title_columns = [
+    new_columns = [
+        ("archive_url", "archive_url"),
+        ("condor_share_title", "title_from_condor"),
         ("webpage_title", "title_from_html"),
         ("webarchive_search_title", "title_from_web_archive"),
         ("yt_video_headline", "title_from_youtube"),
     ]
     # To target table, add new columns in which to store titles
-    for _, new_col in title_columns:
+    for _, new_col in new_columns:
         query = f"""
         ALTER TABLE {target_table.name}
         ADD COLUMN IF NOT EXISTS {new_col} TEXT
@@ -82,10 +84,10 @@ def add_enriched_titles(
 
     # While joining target table and enriched titles table,
     # update the new columns with corresponding data
-    for enriched_title_col, new_col in title_columns:
+    for source_col, new_col in new_columns:
         query = f"""
         UPDATE {target_table.name}
-        SET {new_col} = {title_table.name}.{enriched_title_col}
+        SET {new_col} = {title_table.name}.{source_col}
         FROM {title_table.name}
         WHERE {title_table.name}.url_id = {target_table.name}.{target_url_id_col_name}
         """
