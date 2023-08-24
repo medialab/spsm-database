@@ -10,7 +10,7 @@ Usage: ingest.py [OPTIONS] CONFIG
   Main function to manage the ingestion of raw data to the database. Data can
   come from CSV files or JSON files. Paths to these files must be declared in
   the configuration YAML, which is this command's first and only positional
-  argument of this command.
+  argument.
 
 Options:
   --data-source [condor|de facto|science feedback]

@@ -25,7 +25,7 @@ def cli(config, data_source, no_prompt):
     Main function to manage the ingestion of raw data to the database.
     Data can come from CSV files or JSON files. Paths to these files
     must be declared in the configuration YAML, which is this command's
-    first and only positional argument of this command.
+    first and only positional argument.
     """
     # Parse the configuration file
     with open(config, "r") as f:
