@@ -2,7 +2,7 @@
 
 The database is built with scripts in this directory. To observe the database's creation locally, install PostgreSQL and create a database ("spsm"). You will need to modify the [example configuration YAML](example.config.json) so that it has details about your connection to the PostgreSQL database as well as paths to all the files necessary for data ingestion, which are listed in the example configuration YAML and detailed below.
 
-## Step 1. Ingest data from files
+## Step 1. Ingest original data sources
 
 ```
 Usage: ingest.py [OPTIONS] CONFIG
@@ -13,7 +13,7 @@ Usage: ingest.py [OPTIONS] CONFIG
   argument.
 
 Options:
-  --data-source [condor|de facto|science feedback]
+  --data-source [condor|de facto|science feedback|completed urls]
   --no-prompt                     Skip the prompt that asks the user to
                                   double-check the path to the data file.
   --help                          Show this message and exit.
