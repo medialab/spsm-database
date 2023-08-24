@@ -272,4 +272,4 @@ Set up the Python environment.
 2. Create and activate a virtual environment.
 3. Install dependencies. `pip install -r sql-requirements.txt`
 
-Set up the connection to a PostgreSQL server and create a database. Record details of this connection and the database's name in the [configuration file](example.config.yml).
+Set up the connection to a PostgreSQL server and create a database. Record details of this connection and the database's name in the [configuration file](example.config.yml). See [documentation](docs/how-to-setup-postgres-server.md).
