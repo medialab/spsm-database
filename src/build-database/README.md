@@ -39,3 +39,29 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
 - `completed urls`: [Link to CSV](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/unique_completed_urls_from_condor_set_of_duplicate_urls.csv) (rows: 612)
   - URLs manually constructed from impoverished URLs
   - accompanying metadata (i.e. `condor_id`) is from Condor because impoverished URLs were selected from Condor dataset
+
+### Usage
+
+- Ingest Condor data
+
+  - `python ingest.py --data-source condor`
+  - necessary files (YAML): `condor`, `enriched titles`
+  - yields tables "dataset_condor", "dataset_enriched_titles"
+
+- Ingest De Facto data
+
+  - `python ingest.py --data-source de facto`
+  - necessary files (YAML): `de facto`, `enriched titles`
+  - yields tables "dataset_de_facto", "dataset_enriched_titles"
+
+- Ingest Science Feedback data
+
+  - `python ingest.py --data-source science feedback`
+  - necessary files (YAML): `science feedback`, `enriched titles`
+  - yields tables "dataset_science_feedback", "dataset_enriched_titles"
+
+- Ingest manually completed URLs dataset
+  - `python ingest.py --data-source completed urls`
+  - necessary files (YAML): `completed urls`
+  - necessary tables: "dataset_condor"
+  - yields table "dataset_completed_urls"
