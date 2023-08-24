@@ -11,7 +11,7 @@ from psycopg2.extensions import connection as psycopg2_connection
 @click.option(
     "--data-source",
     prompt=True,
-    type=click.Choice(["condor", "de facto", "science feedback"]),
+    type=click.Choice(["condor", "de facto", "science feedback", "completed urls"]),
 )
 @click.option(
     "--no-prompt",
@@ -44,7 +44,7 @@ def cli(config, data_source, no_prompt):
     connection = connect_to_database(yaml=info)
 
     # If the connection is good, proceed
-    if isinstance(connection, psycopg2_connection):
+    if isinstance(connection, psycopg2_connection) and file_path:
         new_table = None
 
         # Ingest original Condor dataset and enrich resources with titles
@@ -68,10 +68,21 @@ def cli(config, data_source, no_prompt):
                 connection=connection, dataset=file_path, enriched_titles=title_dataset
             )
 
+        elif data_source == "completed urls":
+            new_table = ingestion_scripts.create_completed_urls(
+                connection=connection, file=file_path
+            )
+
         # If a new table was successfully created, return a count of its rows
         if new_table:
             result = count_table_rows(connection=connection, table_name=new_table.name)
             print(f"\nThe program created table {new_table.name} with {result} rows.")
+
+    else:
+        if not file_path:
+            raise FileNotFoundError
+        if not connection:
+            raise ConnectionError
 
 
 if __name__ == "__main__":
