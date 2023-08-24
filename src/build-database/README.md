@@ -144,8 +144,8 @@ erDiagram
    dataset_condor }o--|| dataset_completed_urls : ""
 
    dataset_completed_urls {
-      varchar hash_of_normalized_completed_url PK
-      string normalized_completed_url
+      varchar completed_normalized_url_hash PK
+      string completed_normalized_url
       varchar hash_of_original_normalized_url
       varchar condor_url_rid
       int condor_table_id FK
