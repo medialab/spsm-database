@@ -72,6 +72,81 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
   - necessary tables: "dataset_condor"
   - yields table "dataset_completed_urls"
 
+### Result at the end of data source ingestion
+
+```mermaid
+erDiagram
+   DATASET_CONDOR {
+      int id PK
+      varchar condor_url_rid
+      varchar normalized_clean_url_hash
+      string normalized_clean_url
+      string clean_url
+      timestamp first_post_time
+      string share_title
+      string tpfc_rating
+      varchar public_shares_top_country
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+
+   }
+   DATASET_SCIENCE {
+      varchar id PK
+      varchar normalized_claim_url_hash
+      varchar url_content_id
+      string claim_reviewed
+      timestamp published_date
+      string publisher
+      string review_author
+      float review_rating_value
+      string review_rating_standard_form
+      string url
+      string normalized_url
+      string url_rating_name
+      float url_rating_value
+      timestamp updated_date
+      string review_url
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+   }
+
+   DATASET_DEFACTO {
+      string id PK
+      varchar normalized_claim_url_hash
+      string normalized_claim_url
+      array themes
+      array tags
+      string review_url
+      timestamp review_publication_date
+      string review_author
+      string claim
+      string claim_url
+      timestamp claim_publication_date
+      string claim_url_type
+      string claim_title
+      int claim_rating_value
+      string claim_rating_name
+      string title_from_html
+      string title_from_youtube
+      string title_from_web_archive
+
+   }
+
+
+   DATASET_CONDOR }o--|| DATASET_COMPLETED_URLS : "associates completed URL with corresponding Condor metadata"
+
+   DATASET_COMPLETED_URLS {
+      varchar hash_of_normalized_completed_url PK
+      string normalized_completed_url
+      varchar hash_of_original_normalized_url
+      varchar condor_url_rid
+      int condor_table_id FK
+   }
+
+```
+
 ## Step 2. Merge data sources
 
 ## Set Up
