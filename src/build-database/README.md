@@ -76,7 +76,7 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
 
 ```mermaid
 erDiagram
-   DATASET_CONDOR {
+   dataset_condor {
       int id PK
       varchar condor_url_rid
       varchar normalized_clean_url_hash
@@ -86,12 +86,14 @@ erDiagram
       string share_title
       string tpfc_rating
       varchar public_shares_top_country
+      string archive_url
+      string title_from_condor
       string title_from_html
       string title_from_youtube
       string title_from_web_archive
 
    }
-   DATASET_SCIENCE {
+   dataset_science_feedback {
       varchar id PK
       varchar normalized_claim_url_hash
       varchar url_content_id
@@ -107,12 +109,14 @@ erDiagram
       float url_rating_value
       timestamp updated_date
       string review_url
+      string archive_url
+      string title_from_condor
       string title_from_html
       string title_from_youtube
       string title_from_web_archive
    }
 
-   DATASET_DEFACTO {
+   dataset_de_facto {
       string id PK
       varchar normalized_claim_url_hash
       string normalized_claim_url
@@ -128,6 +132,8 @@ erDiagram
       string claim_title
       int claim_rating_value
       string claim_rating_name
+      string archive_url
+      string title_from_condor
       string title_from_html
       string title_from_youtube
       string title_from_web_archive
@@ -135,9 +141,9 @@ erDiagram
    }
 
 
-   DATASET_CONDOR }o--|| DATASET_COMPLETED_URLS : "associates completed URL with corresponding Condor metadata"
+   dataset_condor }o--|| dataset_completed_urls : ""
 
-   DATASET_COMPLETED_URLS {
+   dataset_completed_urls {
       varchar hash_of_normalized_completed_url PK
       string normalized_completed_url
       varchar hash_of_original_normalized_url
