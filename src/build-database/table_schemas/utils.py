@@ -201,7 +201,6 @@ def clear_table(connection: psycopg2_connection, table: BaseTable):
     table.create(connection=connection)
     table.drop(connection=connection)
     table.create(connection=connection)
-    from connection.execute_query import execute_query
 
     cursor = execute_query(
         connection=connection,
