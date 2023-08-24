@@ -2,6 +2,12 @@
 
 The database is built with scripts in this directory. To observe the database's creation locally, install PostgreSQL and create a database ("spsm"). You will need to modify the [example configuration YAML](example.config.json) so that it has details about your connection to the PostgreSQL database as well as paths to all the files necessary for data ingestion, which are listed in the example configuration YAML and detailed below.
 
+Steps:
+
+1. [Installation and set up](#set-up)
+1. [Ingest original data sources into database](#step-1-ingest-original-data-sources)
+1. [Merge data sources into central claims table](#step-2-merge-data-sources)
+
 ## Step 1. Ingest original data sources
 
 ```
@@ -40,7 +46,7 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
   - URLs manually constructed from impoverished URLs
   - accompanying metadata (i.e. `condor_id`) is from Condor because impoverished URLs were selected from Condor dataset
 
-### Usage
+### Ingestion commands
 
 - Ingest Condor data
 
@@ -65,3 +71,15 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
   - necessary files (YAML): `completed urls`
   - necessary tables: "dataset_condor"
   - yields table "dataset_completed_urls"
+
+## Step 2. Merge data sources
+
+## Set Up
+
+Set up the Python environment.
+
+1. Install Python version 3.11
+2. Create and activate a virtual environment.
+3. Install dependencies. `pip install -r sql-requirements.txt`
+
+Set up the connection to a PostgreSQL server and create a database. Record details of this connection and the database's name in the [configuration file](example.config.json).
