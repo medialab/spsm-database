@@ -155,6 +155,24 @@ erDiagram
 
 ## Step 2. Merge data sources
 
+### Usage
+
+```
+Usage: merge_sources.py [OPTIONS] CONFIG
+
+  Main function to manage the merging of all the datasets into a central
+  claims table and then to explode those claims into a relational table that
+  records each assoction between a document (URL) and a title attributed to
+  that document. A document in the claims table could have a title from
+  Condor, YouTube, its HTML, or Web Archive.
+
+  As its first and only positional argument, this command requires the path to
+  a configuration YAML which contains details about the PostgreSQL connection.
+
+Options:
+  --help  Show this message and exit.
+```
+
 ### Result of merge
 
 ```mermaid
@@ -226,8 +244,9 @@ erDiagram
 
    }
 
-
    dataset_condor }o--|| dataset_completed_urls : ""
+
+   claims ||--|| dataset_completed_urls: ""
 
    dataset_completed_urls {
       varchar completed_normalized_url_hash PK
@@ -252,9 +271,10 @@ erDiagram
       varchar inferred_language
    }
 
-   exploded_urls_and_titles }|--|{ claims: ""
+   doc_title_relation }|--|| claims: ""
 
-   exploded_urls_and_titles {
+   doc_title_relation {
+      int id PK
       int claim_id FK
       string normalized_url
       string title_text

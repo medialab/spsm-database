@@ -1,15 +1,17 @@
+from collections import namedtuple
+
 import click
 import yaml
 from psycopg2.extensions import connection as psycopg2_connection
 
 from table_schemas.claims import ClaimsTable
+from table_schemas.completed_urls import CompletedURLDatasetTable
 from table_schemas.condor import CondorDatasetTable
 from table_schemas.de_facto import DeFactoDatasetTable
+from table_schemas.doc_title_relation import DocTitleRelationTable
 from table_schemas.science import ScienceFeedbackDatasetTable
-from table_schemas.completed_urls import CompletedURLDatasetTable
 from table_schemas.utils import clear_table
-from utils import connect_to_database, execute_query
-from collections import namedtuple
+from utils import connect_to_database, count_table_rows, execute_query
 
 Mapper = namedtuple(
     "Mapper",
@@ -27,6 +29,18 @@ Mapper = namedtuple(
 @click.command()
 @click.argument("config")
 def main(config):
+    """
+    Main function to manage the merging of all the datasets into a
+    central claims table and then to explode those claims into a
+    relational table that records each assoction between a document
+    (URL) and a title attributed to that document. A document in the
+    claims table could have a title from Condor, YouTube, its HTML,
+    or Web Archive.
+
+    As its first and only positional argument, this command requires
+    the path to a configuration YAML which contains details about the
+    PostgreSQL connection.
+    """
     # Connect to the database
     with open(config, "r") as f:
         info = yaml.safe_load(f)
@@ -105,6 +119,36 @@ def main(config):
             connection=connection,
         )
 
+        # Set up the relational table between a document (URL) and its titles
+        doc_title_relation_table = DocTitleRelationTable()
+        clear_table(connection=connection, table=doc_title_relation_table)
+
+        query = f"""
+insert into {doc_title_relation_table.name} (claim_id, normalized_url, title_text, title_type)
+SELECT id AS claim_id, normalized_url, title_from_html AS title_text, 'html' AS title_type FROM {claims_table.name}
+UNION ALL
+SELECT id AS claim_id, normalized_url, title_from_condor AS title_text, 'condor' AS title_type FROM {claims_table.name}
+UNION ALL
+SELECT id AS claim_id, normalized_url, title_from_youtube AS title_text, 'youtube' AS title_type FROM {claims_table.name}
+UNION ALL
+SELECT id AS claim_id, normalized_url, title_from_web_archive AS title_text, 'web_archive' AS title_type FROM {claims_table.name}
+        """
+        print("\nBuilding table for relations between a document (URL) and a title.")
+        execute_query(connection=connection, query=query)
+        doc_title_relation_table.add_foreign_key(
+            foreign_key_column="claim_id",
+            target_table=claims_table.name,
+            target_table_primary_key=claims_table.pk,
+            connection=connection,
+        )
+
+        result = count_table_rows(
+            connection=connection, table_name=doc_title_relation_table.name
+        )
+        print(
+            f"\nThe program created table {doc_title_relation_table.name} with {result} rows."
+        )
+
 
 def insert_data(
     connection: psycopg2_connection, data: Mapper, normalized_url_only: bool = False
@@ -121,7 +165,7 @@ def insert_data(
     query = f"""
 INSERT INTO claims ({columns_for_insert})
 SELECT {columns_for_select}
-from {data.source_table_name}
+FROM {data.source_table_name}
 WHERE NOT EXISTS( SELECT 1 FROM claims WHERE {data.source_table_id} = {data.source_table_name}.id)
         """
     execute_query(connection=connection, query=query)
