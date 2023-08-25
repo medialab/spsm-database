@@ -11,7 +11,15 @@ from psycopg2.extensions import connection as psycopg2_connection
 @click.option(
     "--data-source",
     prompt=True,
-    type=click.Choice(["condor", "de facto", "science feedback", "completed urls"]),
+    type=click.Choice(
+        [
+            "condor",
+            "de facto",
+            "science feedback",
+            "completed urls",
+            "searchable titles and urls",
+        ]
+    ),
 )
 @click.option(
     "--no-prompt",
@@ -68,9 +76,17 @@ def cli(config, data_source, no_prompt):
                 connection=connection, dataset=file_path, enriched_titles=title_dataset
             )
 
+        # Ingest the manually completed URLs
         elif data_source == "completed urls":
             new_table = ingestion_scripts.create_completed_urls(
                 connection=connection, file=file_path
+            )
+
+        # Ingest the dataset that relates titles/urls with searchable versions
+        # and with a value indicating whether or not a search was attempted
+        elif data_source == "searchable titles and urls":
+            new_table = ingestion_scripts.create_searchable_titles_urls(
+                connection=connection, dataset=file_path
             )
 
         # If a new table was successfully created, return a count of its rows

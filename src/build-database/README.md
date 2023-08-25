@@ -19,7 +19,7 @@ Usage: ingest.py [OPTIONS] CONFIG
   argument.
 
 Options:
-  --data-source [condor|de facto|science feedback|completed urls]
+  --data-source [condor|de facto|science feedback|completed urls|searchable titles and urls]
   --no-prompt                     Skip the prompt that asks the user to
                                   double-check the path to the data file.
   --help                          Show this message and exit.
@@ -43,8 +43,12 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
     - `webpage_title`: scraped from HTML
     - `webarchive_search_title`: recovered from Web Archive
 - `completed urls`: [Link to CSV](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/unique_completed_urls_from_condor_set_of_duplicate_urls.csv) (rows: 612)
+
   - URLs manually constructed from impoverished URLs
   - accompanying metadata (i.e. `condor_id`) is from Condor because impoverished URLs were selected from Condor dataset
+
+- `searchable titles and urls`: [Link to CSV](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/searchable_urls_and_titles_tweet_search.csv) (rows: 169465)
+  - dataset that relates a claim's title or URL with (i) a searchable version and (ii) a value indicating whether or not a search was attempted
 
 ### Ingestion commands
 
@@ -56,21 +60,27 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
 
 - Ingest De Facto data
 
-  - `python ingest.py --data-source de facto`
+  - `python ingest.py --data-source "de facto"`
   - necessary files (YAML): `de facto`, `enriched titles`
   - yields tables "dataset_de_facto", "dataset_enriched_titles"
 
 - Ingest Science Feedback data
 
-  - `python ingest.py --data-source science feedback`
+  - `python ingest.py --data-source "science feedback"`
   - necessary files (YAML): `science feedback`, `enriched titles`
   - yields tables "dataset_science_feedback", "dataset_enriched_titles"
 
 - Ingest manually completed URLs dataset
-  - `python ingest.py --data-source completed urls`
+
+  - `python ingest.py --data-source "completed urls"`
   - necessary files (YAML): `completed urls`
   - necessary tables: "dataset_condor"
   - yields table "dataset_completed_urls"
+
+- Ingest dataset searchable titles and URLs
+  - `python ingest.py --data-source "searchable titles and urls"`
+  - necessary files (YAML): `searchable_urls_and_titles_tweet_search.csv`
+  - yields table "searchable_titles_urls"
 
 ### Result at the end of data source ingestion
 
@@ -150,6 +160,15 @@ erDiagram
       varchar condor_url_rid
       int condor_table_id FK
    }
+
+  searchable_titles_urls {
+    string normalized_url
+    string tweet_search_url
+    string title_text
+    string tweet_search_title
+    bool not_searched_on_twitter
+
+  }
 
 ```
 
