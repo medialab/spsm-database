@@ -327,6 +327,10 @@ Options:
   --help         Show this message and exit.
 ```
 
+### Result of Tweet ingestion
+
+![image](../../doc/spsm%20-%20public.png)
+
 ## Set Up
 
 Set up the Python environment.
