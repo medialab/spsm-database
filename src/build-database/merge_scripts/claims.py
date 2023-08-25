@@ -7,10 +7,10 @@ from table_schemas.completed_urls import CompletedURLDatasetTable
 from table_schemas.condor import CondorDatasetTable
 from table_schemas.de_facto import DeFactoDatasetTable
 from table_schemas.science import ScienceFeedbackDatasetTable
-from table_schemas.utils import clear_table
+from table_schemas.utils import clear_table, BaseTable
 
 
-def create_claims_table(connection: psycopg2_connection):
+def create_claims_table(connection: psycopg2_connection) -> BaseTable:
     claims_table = ClaimsTable()
     clear_table(connection=connection, table=claims_table)
 
@@ -81,3 +81,5 @@ def create_claims_table(connection: psycopg2_connection):
         target_table_primary_key=u.source_table_primary_key,
         connection=connection,
     )
+
+    return claims_table

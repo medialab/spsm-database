@@ -2,11 +2,11 @@ from psycopg2.extensions import connection as psycopg2_connection
 
 from table_schemas.claims import ClaimsTable
 from table_schemas.doc_title_relation import DocTitleRelationTable
-from table_schemas.utils import clear_table
-from utils import count_table_rows, execute_query
+from table_schemas.utils import clear_table, BaseTable
+from utils import execute_query
 
 
-def create_doc_title_relation_table(connection: psycopg2_connection):
+def create_doc_title_relation_table(connection: psycopg2_connection) -> BaseTable:
     claims_table = ClaimsTable()
 
     doc_title_relation_table = DocTitleRelationTable()
@@ -31,9 +31,4 @@ SELECT id AS claim_id, normalized_url, title_from_web_archive AS title_text, 'we
         connection=connection,
     )
 
-    result = count_table_rows(
-        connection=connection, table_name=doc_title_relation_table.name
-    )
-    print(
-        f"\nThe program created table {doc_title_relation_table.name} with {result} rows."
-    )
+    return doc_title_relation_table

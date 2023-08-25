@@ -2,10 +2,8 @@ import click
 import yaml
 from psycopg2.extensions import connection as psycopg2_connection
 
-from utils import connect_to_database
-
-from merge_scripts.claims import create_claims_table
-from merge_scripts.doc_title_rel import create_doc_title_relation_table
+from merge_scripts import create_claims_table, create_doc_title_relation_table
+from utils import connect_to_database, count_table_rows
 
 
 @click.command()
@@ -29,11 +27,19 @@ def main(config):
     connection = connect_to_database(info)
 
     if isinstance(connection, psycopg2_connection):
-        # Initialize Claims table
-        create_claims_table(connection=connection)
+        # Create the claims table by merging from dataset tables
+        claims_table = create_claims_table(connection=connection)
+        result = count_table_rows(connection=connection, table_name=claims_table.name)
+        print(f"\nThe program created table {claims_table.name} with {result} rows.")
 
-        # Set up the relational table between a document (URL) and its titles
-        create_doc_title_relation_table(connection=connection)
+        # Create the relational table between a document (URL) and its titles
+        relational_table = create_doc_title_relation_table(connection=connection)
+        result = count_table_rows(
+            connection=connection, table_name=relational_table.name
+        )
+        print(
+            f"\nThe program created table {relational_table.name} with {result} rows."
+        )
 
 
 if __name__ == "__main__":

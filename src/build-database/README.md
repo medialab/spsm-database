@@ -300,6 +300,14 @@ erDiagram
       string title_type
    }
 
+  searchable_titles_urls {
+    string normalized_url
+    string tweet_search_url
+    string title_text
+    string tweet_search_title
+    bool not_searched_on_twitter
+
+  }
 
 ```
 
