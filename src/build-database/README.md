@@ -7,6 +7,7 @@ Steps:
 1. [Installation and set up](#set-up)
 1. [Ingest original data sources into database](#step-1-ingest-original-data-sources)
 1. [Merge data sources into central claims table](#step-2-merge-data-sources)
+1. [Ingest Tweet data from CSV files](#step-3-ingest-tweet-data)
 
 ## Step 1. Ingest original data sources
 
