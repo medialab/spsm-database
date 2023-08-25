@@ -16,7 +16,7 @@ def setup(connection: psycopg2_connection):
     return table
 
 
-def insert(connection: psycopg2_connection, tweet_id: str) -> BaseTable:
+def insert(connection: psycopg2_connection) -> BaseTable:
     tweet_claim = TweetClaimTable()
     tweet = TweetTable().name
     tweet_query = TweetQueryTable().name
@@ -31,7 +31,6 @@ join {tweet_query} tq on t.id = tq.tweet_id
 join {searchable_titles_urls} stu on stu.tweet_search_title = tq.query 
 join {doc_title_relation} dtr on dtr.title_text = stu.title_text 
 join {claims} c on dtr.claim_id = c.id 
-where t.id = '{tweet_id}'
 on conflict do nothing
 """
     execute_query(connection=connection, query=query)
