@@ -2,8 +2,9 @@ import click
 import yaml
 from psycopg2.extensions import connection as psycopg2_connection
 
-from merge_scripts import create_claims_table, create_doc_title_relation_table
 from utils import connect_to_database, count_table_rows
+from merge_scripts.claims import create_claims_table
+from merge_scripts.doc_title_rel import create_doc_title_relation_table
 
 
 @click.command()

@@ -36,7 +36,7 @@ def insert(connection, dataset, enriched_titles):
     # Prepare Condor table for new data ingestion
     table = CondorDatasetTable()
     clear_table(connection=connection, table=table)
-    print(f"\nImporting data from Condor to table: {table.name}\n{dataset}")
+    print(f"\nImporting data to table: {table.name}\n{dataset}")
 
     # Ingest all of the dataset into the Condor table
     file_length = casanova.reader.count(dataset)
@@ -57,3 +57,5 @@ def insert(connection, dataset, enriched_titles):
         target_url_id_col_name="normalized_clean_url_hash",
         target_table=table,
     )
+
+    return table

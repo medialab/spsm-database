@@ -48,7 +48,7 @@ def clean(data: dict) -> dict:
 def insert(connection, dataset, enriched_titles):
     table = ScienceFeedbackDatasetTable()
     clear_table(connection=connection, table=table)
-    print(f"\nImporting data from De Facto to table: {table.name}\n{dataset}")
+    print(f"\nImporting data to table: {table.name}\n{dataset}")
     with open(dataset, "r") as f:
         data = json.load(f)
         for appearance in tqdm(data, total=len(data)):
@@ -66,3 +66,4 @@ def insert(connection, dataset, enriched_titles):
         target_url_id_col_name="normalized_claim_url_hash",
         target_table=table,
     )
+    return table

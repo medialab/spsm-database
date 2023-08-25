@@ -32,7 +32,7 @@ def clean(data: dict) -> dict:
 def insert(connection, dataset):
     table = SearchableTitlesURLSTable()
     clear_table(connection=connection, table=table)
-    print(f"\nImporting data from query dataset to table: {table.name}\n{dataset}")
+    print(f"\nImporting data to table: {table.name}\n{dataset}")
 
     # Ingest all of the dataset into the Searchable Titles & URLS table
     file_length = casanova.reader.count(dataset)

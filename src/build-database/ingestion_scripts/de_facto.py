@@ -49,7 +49,7 @@ def clean(data: dict) -> dict:
 def insert(connection, dataset, enriched_titles):
     table = DeFactoDatasetTable()
     clear_table(connection=connection, table=table)
-    print(f"\nImporting data from De Facto to table: {table.name}\n{dataset}")
+    print(f"\nImporting data to table: {table.name}\n{dataset}")
     with open(dataset, "r") as f:
         defacto_data = json.load(f)
         for clam_review in tqdm(defacto_data, total=len(defacto_data)):

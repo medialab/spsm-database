@@ -54,6 +54,7 @@ def cli(config, data_source, no_prompt):
     # If the connection is good, proceed
     if isinstance(connection, psycopg2_connection) and file_path:
         new_table = None
+        print("\n================================")
 
         # Ingest original Condor dataset and enrich resources with titles
         if data_source == "condor":
@@ -93,6 +94,7 @@ def cli(config, data_source, no_prompt):
         if new_table:
             result = count_table_rows(connection=connection, table_name=new_table.name)
             print(f"\nThe program created table {new_table.name} with {result} rows.")
+            print("\n================================")
 
     else:
         if not file_path:

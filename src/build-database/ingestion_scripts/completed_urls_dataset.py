@@ -29,9 +29,7 @@ def clean(data: dict) -> dict:
 def insert(connection, file):
     table = CompletedURLDatasetTable()
     clear_table(connection=connection, table=table)
-    print(
-        f"\nImporting data from Completed URLs dataset to table: {table.name}\n{file}"
-    )
+    print(f"\nImporting data to table: {table.name}\n{file}")
     file_length = casanova.reader.count(file)
     with open(file, "r") as f:
         reader = csv.DictReader(f)
