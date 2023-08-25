@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from table_schemas.utils import BaseColumn, BaseTable, DType
 
 TWEET_TABLE_COLUMNS = [
@@ -59,15 +60,3 @@ class TweetTable(BaseTable):
             setattr(self, col.name, col)
         pk_column = getattr(self, "id")
         self.pk = pk_column.name
-
-    @classmethod
-    def on_conflict(cls) -> str:
-        update_columns = [col.name for col in cls.columns if col.name != cls.pk]
-        excluded_row = [f"EXCLUDED.{col}" for col in update_columns]
-        # Update the row if the current colleciton time is older (greater) than the new collection time
-        query = f"""
-            DO UPDATE
-            SET ({", ".join(update_columns)}) = ({", ".join(excluded_row)})
-            WHERE ({cls.name}.collection_time) > EXCLUDED.collection_time
-        """
-        return query

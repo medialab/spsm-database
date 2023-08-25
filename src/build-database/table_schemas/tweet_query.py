@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from table_schemas.utils import BaseColumn, BaseTable, DType
 
 TWEET_QUERY_TABLE_COLUMNS = [

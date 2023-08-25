@@ -311,6 +311,21 @@ erDiagram
 
 ```
 
+## Step 3. Ingest Tweet data
+
+### Usage
+
+```
+Usage: tweets.py [OPTIONS] FILE
+
+  Main function to manage the ingestion of tweets to the database.
+
+Options:
+  --config TEXT
+  --reset        FOR TESTING ONLY: Drop existing tables
+  --help         Show this message and exit.
+```
+
 ## Set Up
 
 Set up the Python environment.
