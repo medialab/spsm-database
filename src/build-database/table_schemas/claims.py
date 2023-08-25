@@ -3,9 +3,10 @@ from table_schemas.utils import BaseColumn, BaseTable, DType
 
 CLAIMS_TABLE_COLUMNS = [
     BaseColumn("id", DType.SERIAL, DType.NOTNULL),
-    BaseColumn("condor_table_id", DType.SERIAL),
+    BaseColumn("condor_table_id", DType.INT),
     BaseColumn("de_facto_table_id", DType.TEXT),
     BaseColumn("science_feedback_table_id", DType.VAR20),
+    BaseColumn("completed_url_table_id", DType.VAR250),
     BaseColumn("normalized_url", DType.TEXT),
     BaseColumn("normalized_url_hash", DType.VAR250),
     BaseColumn("archive_url", DType.TEXT),

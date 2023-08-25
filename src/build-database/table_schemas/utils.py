@@ -181,15 +181,16 @@ class BaseTable:
 
     def add_foreign_key(
         self,
-        column: str,
-        references: tuple[str, str],
+        foreign_key_column: str,
+        target_table: str,
+        target_table_primary_key: str,
         connection: connection | None = None,
     ):
-        fk_name = f"{self.name}_{column}_{references[0]}_{references[1]}"
+        fk_name = f"{self.name}_{foreign_key_column}_{target_table}_{target_table_primary_key}"
         query = f"""
         ALTER TABLE {self.name} DROP CONSTRAINT IF EXISTS {fk_name};
         ALTER TABLE {self.name} ADD CONSTRAINT {fk_name}
-        FOREIGN KEY({column}) REFERENCES {references[0]}({references[1]})
+        FOREIGN KEY({foreign_key_column}) REFERENCES {target_table}({target_table_primary_key})
         """
         if connection:
             execute_query(connection=connection, query=query)

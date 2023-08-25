@@ -97,7 +97,8 @@ def link_to_condor_table(connection):
     # Add a foreign key relating the Condor table's ID with
     # the enriched / "completed" URL in the completed URL table
     completed_url_table.add_foreign_key(
-        column="condor_table_id",
-        references=(condor_table.name, "id"),
+        foreign_key_column="condor_table_id",
+        target_table=condor_table.name,
+        target_table_primary_key=condor_table.pk,
         connection=connection,
     )
