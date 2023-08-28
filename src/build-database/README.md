@@ -343,6 +343,8 @@ As such, the Python script parses `FILEPATH_LIST.txt` and opens the CSV file who
 
 ## Step 4. Directly relate Tweets to Claims
 
+Finally, streamline queries to the database by directly relating entities in the Tweets table to entities in the Claims table.
+
 ### Usage
 
 ```
