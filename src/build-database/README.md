@@ -314,6 +314,8 @@ erDiagram
 
 ## Step 3. Ingest Tweet data
 
+While reading through a list of paths to CSV files containing collected Tweets, import each Tweet to the database.
+
 ### Usage
 
 ```
@@ -326,6 +328,18 @@ Options:
   --reset        FOR TESTING ONLY: Drop existing tables
   --help         Show this message and exit.
 ```
+
+In addition to a path to the configuration YAML, given as the option `--config`, the command `tweets.py import` requires a path to a text file (`.txt`) in which every new line is the path to a data file.
+
+The `FILEPATH_LIST.txt` file can be generated using a combination of the bash commands `echo` and `>`, and while taking advantage of the auto-completion of file paths.
+
+In example:
+
+```
+echo ../../data/tweets/collection1.csv >> FILEPATH_LIST.txt
+```
+
+As such, the Python script parses `FILEPATH_LIST.txt` and opens the CSV file whose path is written on the line. The path must be legible to the Python script given the location from which the script is run.
 
 ## Step 4. Directly relate Tweets to Claims
 
