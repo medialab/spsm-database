@@ -357,6 +357,29 @@ Options:
   --help         Show this message and exit.
 ```
 
+### Example SQL query
+
+Select all Tweets related to Claims contained in the Condor dataset.
+
+```sql
+select t.id as tweet_id, c.*
+from tweet t
+join tweet_claim tc on t.id = tc.tweet_id
+join claims c on c.id = tc.claim_id
+where c.condor_table_id is not null
+```
+
+Select all Tweets related to Claims contained in the Condor dataset which were posted before Condor fact-checked the Claim.
+
+```sql
+select t.id as tweet_id, c.*
+from tweet t
+join tweet_claim tc on t.id = tc.tweet_id
+join claims c on c.id = tc.claim_id
+join dataset_condor dc on c.condor_table_id = dc.id
+where dc.tpfc_first_fact_check > t.local_time
+```
+
 ### Result of Tweet ingestion & relation of Tweets to Claims
 
 ![image](../../doc/spsm%20-%20public.png)
