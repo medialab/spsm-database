@@ -8,13 +8,40 @@ def insert_data(
     connection: psycopg2_connection, data: Mapper, normalized_url_only: bool = False
 ):
     if normalized_url_only:
-        columns_for_insert = (
-            f"{data.source_table_id}, normalized_url, normalized_url_hash"
-        )
-        columns_for_select = f"id as {data.source_table_id}, {data.source_normalized_url} as normalized_url, {data.source_normalized_url_hash} as normalized_url_hash"
+        columns_for_insert = f"""
+        {data.source_table_id},
+        normalized_url,
+        normalized_url_hash
+        """
+        columns_for_select = f"""
+        id as {data.source_table_id},
+        {data.source_normalized_url} as normalized_url,
+        {data.source_normalized_url_hash} as normalized_url_hash
+        """
+
     else:
-        columns_for_insert = f"{data.source_table_id}, normalized_url, normalized_url_hash, archive_url, title_from_html, title_from_web_archive, title_from_condor, title_from_youtube"
-        columns_for_select = f"id as {data.source_table_id}, {data.source_normalized_url} as normalized_url, {data.source_normalized_url_hash} as normalized_url_hash, archive_url, title_from_html, title_from_web_archive, title_from_condor, title_from_youtube"
+        columns_for_insert = f"""
+        {data.source_table_id},
+        normalized_url,
+        normalized_url_hash,
+        earliest_fact_check,
+        archive_url,
+        title_from_html,
+        title_from_web_archive,
+        title_from_condor,
+        title_from_youtube
+        """
+        columns_for_select = f"""
+        id as {data.source_table_id},
+        {data.source_normalized_url} as normalized_url,
+        {data.source_normalized_url_hash} as normalized_url_hash,
+        {data.source_first_fact_check} as earliest_fact_check,
+        archive_url,
+        title_from_html,
+        title_from_web_archive,
+        title_from_condor,
+        title_from_youtube
+        """
 
     query = f"""
 INSERT INTO claims ({columns_for_insert})

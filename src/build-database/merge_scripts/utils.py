@@ -8,6 +8,7 @@ Mapper = namedtuple(
         "source_table_id",  # column name of the dataset's table id in the claims table
         "source_normalized_url",  # name of the dataset table's normalized URL column
         "source_normalized_url_hash",  # name of the dataset table's normalized URL hash column
+        "source_first_fact_check",  # name of the dataset table's column for when the claim was fact-checked
     ],
-    defaults=[None, None, None, None, None],
+    defaults=[None, None, None, None, None, None],
 )

@@ -21,6 +21,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_table_id="condor_table_id",
         source_normalized_url="normalized_clean_url",
         source_normalized_url_hash="normalized_clean_url_hash",
+        source_first_fact_check="tpfc_first_fact_check",
     )
     print(f"\nMerging data from {c.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=c)
@@ -38,6 +39,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_table_id="de_facto_table_id",
         source_normalized_url="normalized_claim_url",
         source_normalized_url_hash="normalized_claim_url_hash",
+        source_first_fact_check="review_publication_date",
     )
     print(f"\nMerging data from {d.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=d)
@@ -55,6 +57,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_table_id="science_feedback_table_id",
         source_normalized_url="normalized_claim_url",
         source_normalized_url_hash="normalized_claim_url_hash",
+        source_first_fact_check="published_date",
     )
     print(f"\nMerging data from {s.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=s)

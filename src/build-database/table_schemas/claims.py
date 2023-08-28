@@ -10,6 +10,7 @@ CLAIMS_TABLE_COLUMNS = [
     BaseColumn("normalized_url", DType.TEXT),
     BaseColumn("normalized_url_hash", DType.VAR250),
     BaseColumn("archive_url", DType.TEXT),
+    BaseColumn("earliest_fact_check", DType.DATETIME),
     BaseColumn("title_from_html", DType.TEXT),
     BaseColumn("title_from_web_archive", DType.TEXT),
     BaseColumn("title_from_condor", DType.TEXT),
