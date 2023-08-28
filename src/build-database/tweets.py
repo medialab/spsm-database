@@ -61,7 +61,7 @@ def streamline(config):
 @click.argument("filepath_list")
 def insert(config, reset, filepath_list):
     """
-    Main function to manage the ingestion of tweets to the database.
+    Main function to manage the ingestion of Tweets to the database.
     """
     # Parse the configuration file
     with open(config, "r") as f:

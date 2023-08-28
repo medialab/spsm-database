@@ -317,9 +317,9 @@ erDiagram
 ### Usage
 
 ```
-Usage: tweets.py [OPTIONS] FILE
+Usage: tweets.py import [OPTIONS] FILEPATH_LIST
 
-  Main function to manage the ingestion of tweets to the database.
+  Main function to manage the ingestion of Tweets to the database.
 
 Options:
   --config TEXT
@@ -327,7 +327,21 @@ Options:
   --help         Show this message and exit.
 ```
 
-### Result of Tweet ingestion
+## Step 4. Directly relate Tweets to Claims
+
+### Usage
+
+```
+Usage: tweets.py relation [OPTIONS]
+
+  Main function to streamline queries of Tweets and claims.
+
+Options:
+  --config TEXT
+  --help         Show this message and exit.
+```
+
+### Result of Tweet ingestion & relation of Tweets to Claims
 
 ![image](../../doc/spsm%20-%20public.png)
 
