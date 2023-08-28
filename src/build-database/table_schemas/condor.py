@@ -12,6 +12,7 @@ CONDOR_DATASET_TABLE_COLUMNS = [
     BaseColumn("tpfc_rating", DType.TEXT),
     BaseColumn("tpfc_first_fact_check", DType.DATETIME),
     BaseColumn("public_shares_top_country", DType.VAR20),
+    BaseColumn("normalized_fact_check_rating", DType.FLOAT),
 ]
 
 

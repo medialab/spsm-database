@@ -17,6 +17,7 @@ SCIENCE_FEEDBACK_DATASET_TABLE_COLUMNS = [
     BaseColumn("url_rating_value", DType.FLOAT),
     BaseColumn("updated_date", DType.DATETIME),
     BaseColumn("review_url", DType.TEXT),
+    BaseColumn("review_or_url_rating_value", DType.FLOAT),
 ]
 
 

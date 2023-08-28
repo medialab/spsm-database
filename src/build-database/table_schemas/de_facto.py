@@ -15,7 +15,7 @@ DEFACTO_DATASET_TABLE_COLUMNS = [
     BaseColumn("claim_publication_date", DType.DATETIME),
     BaseColumn("claim_url_type", DType.TEXT),
     BaseColumn("claim_title", DType.TEXT),
-    BaseColumn("claim_rating_value", DType.INT),
+    BaseColumn("claim_rating_value", DType.FLOAT),
     BaseColumn("claim_rating_name", DType.TEXT),
 ]
 

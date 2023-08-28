@@ -23,6 +23,20 @@ def clean(data: dict) -> dict:
             "normalized_clean_url": normalized_url,
         }
     )
+
+    tpfc_rating = data.get("tpfc_rating")
+    CONDOR_RATINGS = {
+        "fact checked as false": 1.0,
+        "fact checked as altered media": 2.0,
+        "fact checked as missing context": 3.0,
+        "fact checked as mixture or false headline": 3.0,
+        "opinion": 4.0,
+        "fact checked as true": 5.0,
+    }
+    data.update({"normalized_fact_check_rating": None})
+    if tpfc_rating and tpfc_rating in CONDOR_RATINGS.keys():
+        data.update({"normalized_fact_check_rating": CONDOR_RATINGS[tpfc_rating]})
+
     for k, v in data.items():
         if v == "":
             v = None

@@ -29,7 +29,8 @@ def insert_data(
         title_from_html,
         title_from_web_archive,
         title_from_condor,
-        title_from_youtube
+        title_from_youtube,
+        universal_claim_rating
         """
         columns_for_select = f"""
         id as {data.source_table_id},
@@ -40,7 +41,8 @@ def insert_data(
         title_from_html,
         title_from_web_archive,
         title_from_condor,
-        title_from_youtube
+        title_from_youtube,
+        {data.source_universal_rating}
         """
 
     query = f"""

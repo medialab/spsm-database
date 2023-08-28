@@ -22,6 +22,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_normalized_url="normalized_clean_url",
         source_normalized_url_hash="normalized_clean_url_hash",
         source_first_fact_check="tpfc_first_fact_check",
+        source_universal_rating="normalized_fact_check_rating",
     )
     print(f"\nMerging data from {c.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=c)
@@ -40,6 +41,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_normalized_url="normalized_claim_url",
         source_normalized_url_hash="normalized_claim_url_hash",
         source_first_fact_check="review_publication_date",
+        source_universal_rating="claim_rating_value",
     )
     print(f"\nMerging data from {d.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=d)
@@ -58,6 +60,7 @@ def create_claims_table(connection: psycopg2_connection) -> BaseTable:
         source_normalized_url="normalized_claim_url",
         source_normalized_url_hash="normalized_claim_url_hash",
         source_first_fact_check="published_date",
+        source_universal_rating="review_or_url_rating_value",
     )
     print(f"\nMerging data from {s.source_table_name} into {claims_table.name}")
     insert_data(connection=connection, data=s)

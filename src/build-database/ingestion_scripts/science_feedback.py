@@ -35,6 +35,14 @@ def clean(data: dict) -> dict:
         elif isinstance(v, str):
             v = v.strip()
         full_data.update({k: v})
+
+    # Synthesize the fact-check rating, prioritizing the review rating
+    full_data.update({"review_or_url_rating_value": None})
+    if full_data.get("review_rating_value"):
+        full_data["review_or_url_rating_value"] = full_data["review_rating_value"]
+    elif full_data.get("url_rating_value"):
+        full_data["review_or_url_rating_value"] = full_data["url_rating_value"]
+
     # When available, add data from the enriched JSON (aka not in the original CSV)
     review_url = (None,)
     if isinstance(data.get("reviews"), list) and len(data["reviews"]) > 0:
