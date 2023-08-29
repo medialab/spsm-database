@@ -1,5 +1,7 @@
 import csv
+import gzip
 import sys
+from contextlib import contextmanager
 
 import casanova
 import click
@@ -27,6 +29,21 @@ class LangDetect:
 LANG_COL = "detected_language"
 
 
+@contextmanager
+def open_large_file(file: str):
+    is_gzipped = True
+    try:
+        with gzip.open(file, "r") as f:
+            f.read()
+    except gzip.BadGzipFile:
+        is_gzipped = False
+
+    if is_gzipped:
+        yield gzip.open(file, "rt")
+    else:
+        yield open(file, "r")
+
+
 @click.command()
 @click.option("--infile")
 @click.option("--outfile")
@@ -35,7 +52,8 @@ def main(infile, outfile):
     nlp = LangDetect()
 
     total_rows = casanova.reader.count(infile)
-    with open(infile, "r") as f, open(outfile, "w") as of:
+
+    with open_large_file(infile) as f, open(outfile, "w") as of:
         enricher = casanova.enricher(
             f,
             of,
