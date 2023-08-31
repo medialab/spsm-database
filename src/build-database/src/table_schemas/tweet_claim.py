@@ -5,6 +5,8 @@ from table_schemas.utils import BaseColumn, BaseTable, DType
 TWEET_CLAIM_TABLE_COLUMNS = [
     BaseColumn("tweet_id", DType.VAR20),
     BaseColumn("claim_id", DType.INT),
+    BaseColumn("search_type", DType.VAR250),
+    BaseColumn("match_probability", DType.FLOAT),
 ]
 
 

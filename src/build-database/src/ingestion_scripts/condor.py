@@ -46,7 +46,7 @@ def clean(data: dict) -> dict:
     return data
 
 
-def insert(connection, dataset, enriched_titles):
+def insert(connection, dataset, supplemental_titles):
     # Prepare Condor table for new data ingestion
     table = CondorDatasetTable()
     clear_table(connection=connection, table=table)
@@ -64,7 +64,9 @@ def insert(connection, dataset, enriched_titles):
             )
 
     # Enrich the Condor dataset table with titles
-    setup_enriched_title_dataset_table(connection=connection, dataset=enriched_titles)
+    setup_enriched_title_dataset_table(
+        connection=connection, dataset=supplemental_titles
+    )
     print(f"\nAltering the table {table.name} to have columns for enriched titles.")
     add_enriched_titles(
         connection=connection,

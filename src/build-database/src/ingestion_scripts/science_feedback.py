@@ -53,7 +53,7 @@ def clean(data: dict) -> dict:
     return full_data
 
 
-def insert(connection, dataset, enriched_titles):
+def insert(connection, dataset, supplemental_titles):
     table = ScienceFeedbackDatasetTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data to table: {table.name}\n{dataset}")
@@ -67,7 +67,9 @@ def insert(connection, dataset, enriched_titles):
             )
 
     # Enrich the Science Feedback dataset table with titles
-    setup_enriched_title_dataset_table(connection=connection, dataset=enriched_titles)
+    setup_enriched_title_dataset_table(
+        connection=connection, dataset=supplemental_titles
+    )
     print(f"\nAltering the table {table.name} to have columns for enriched titles.")
     add_enriched_titles(
         connection=connection,

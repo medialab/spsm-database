@@ -2,9 +2,10 @@ import click
 import yaml
 from psycopg2.extensions import connection as psycopg2_connection
 
-from utils import connect_to_database, count_table_rows
 from merge_scripts.claims import create_claims_table
 from merge_scripts.doc_title_rel import create_doc_title_relation_table
+from merge_scripts.unique_urls import create_url_enrichment_table
+from utils import connect_to_database, count_table_rows
 
 
 @click.command()
@@ -40,6 +41,15 @@ def main(config):
         )
         print(
             f"\nThe program created table {relational_table.name} with {result} rows."
+        )
+
+        # Create a de-duplicated table of all URLs, in which to store enrichments
+        url_enrichment_table = create_url_enrichment_table(connection=connection)
+        result = count_table_rows(
+            connection=connection, table_name=url_enrichment_table.name
+        )
+        print(
+            f"\nThe program created table {url_enrichment_table.name} with {result} rows."
         )
 
 

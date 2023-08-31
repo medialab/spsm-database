@@ -58,23 +58,29 @@ def cli(config, data_source, no_prompt):
 
         # Ingest original Condor dataset and enrich resources with titles
         if data_source == "condor":
-            title_dataset = info["data sources"]["enriched titles"]
+            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_condor(
-                connection=connection, dataset=file_path, enriched_titles=title_dataset
+                connection=connection,
+                dataset=file_path,
+                supplemental_titles=title_dataset,
             )
 
         # Ingest original De Facto dataset and enrich resources with titles
         elif data_source == "de facto":
-            title_dataset = info["data sources"]["enriched titles"]
+            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_de_facto(
-                connection=connection, dataset=file_path, enriched_titles=title_dataset
+                connection=connection,
+                dataset=file_path,
+                supplemental_titles=title_dataset,
             )
 
         # Ingest original Science Feedback and enrich resources with titles
         elif data_source == "science feedback":
-            title_dataset = info["data sources"]["enriched titles"]
+            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_science(
-                connection=connection, dataset=file_path, enriched_titles=title_dataset
+                connection=connection,
+                dataset=file_path,
+                supplemental_titles=title_dataset,
             )
 
         # Ingest the manually completed URLs
@@ -83,7 +89,7 @@ def cli(config, data_source, no_prompt):
                 connection=connection, file=file_path
             )
 
-        # Ingest the dataset that relates titles/urls with searchable versions
+        # Ingest the dataset that relates titles/URLs with searchable versions
         # and with a value indicating whether or not a search was attempted
         elif data_source == "searchable titles and urls":
             new_table = ingestion_scripts.create_searchable_titles_urls(

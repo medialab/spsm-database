@@ -13,7 +13,7 @@ def create_doc_title_relation_table(connection: psycopg2_connection) -> BaseTabl
     clear_table(connection=connection, table=doc_title_relation_table)
 
     query = f"""
-insert into {doc_title_relation_table.name} (claim_id, normalized_url, title_text, title_type)
+INSERT INTO {doc_title_relation_table.name} (claim_id, normalized_url, title_text, title_type)
 SELECT id AS claim_id, normalized_url, title_from_html AS title_text, 'html' AS title_type FROM {claims_table.name}
 UNION ALL
 SELECT id AS claim_id, normalized_url, title_from_condor AS title_text, 'condor' AS title_type FROM {claims_table.name}
