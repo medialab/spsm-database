@@ -18,6 +18,7 @@ from psycopg2.extensions import connection as psycopg2_connection
             "science feedback",
             "completed urls",
             "searchable titles and urls",
+            "supplemental titles",
         ]
     ),
 )
@@ -93,6 +94,12 @@ def cli(config, data_source, no_prompt):
         # and with a value indicating whether or not a search was attempted
         elif data_source == "searchable titles and urls":
             new_table = ingestion_scripts.create_searchable_titles_urls(
+                connection=connection, dataset=file_path
+            )
+
+        #
+        elif data_source == "supplemental titles":
+            new_table = ingestion_scripts.setup_enriched_title_dataset_table(
                 connection=connection, dataset=file_path
             )
 

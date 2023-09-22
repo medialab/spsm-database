@@ -4,10 +4,6 @@ from tqdm import tqdm
 
 from table_schemas.science import ScienceFeedbackDatasetTable
 from table_schemas.utils import clear_table
-from table_schemas.enriched_titles import (
-    add_enriched_titles,
-    setup_enriched_title_dataset_table,
-)
 
 
 def clean(data: dict) -> dict:
@@ -66,14 +62,4 @@ def insert(connection, dataset, supplemental_titles):
                 on_conflict="DO NOTHING",
             )
 
-    # Enrich the Science Feedback dataset table with titles
-    setup_enriched_title_dataset_table(
-        connection=connection, dataset=supplemental_titles
-    )
-    print(f"\nAltering the table {table.name} to have columns for enriched titles.")
-    add_enriched_titles(
-        connection=connection,
-        target_url_id_col_name="normalized_claim_url_hash",
-        target_table=table,
-    )
     return table

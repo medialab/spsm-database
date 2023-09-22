@@ -4,10 +4,6 @@ import casanova
 from tqdm import tqdm
 
 from table_schemas.condor import CondorDatasetTable
-from table_schemas.enriched_titles import (
-    add_enriched_titles,
-    setup_enriched_title_dataset_table,
-)
 from table_schemas.utils import clear_table
 
 
@@ -62,16 +58,5 @@ def insert(connection, dataset, supplemental_titles):
                 connection=connection,
                 on_conflict="DO NOTHING",
             )
-
-    # Enrich the Condor dataset table with titles
-    setup_enriched_title_dataset_table(
-        connection=connection, dataset=supplemental_titles
-    )
-    print(f"\nAltering the table {table.name} to have columns for enriched titles.")
-    add_enriched_titles(
-        connection=connection,
-        target_url_id_col_name="normalized_clean_url_hash",
-        target_table=table,
-    )
 
     return table
