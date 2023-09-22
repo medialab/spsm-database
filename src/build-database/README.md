@@ -36,10 +36,10 @@ The configuration YAML has 2 top-level keys, `connection` and `data sources`. Th
   - data collected from API in fall 2022, re-requested in spring 2023
 - `de facto`: [Link to JSON](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/defacto_full.json)
   - data collected from API in fall 2022, re-requested in spring 2023
-- `enriched titles`: [Link to CSV](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/url_title_enrichment.csv) (rows: 110166)
+- `enriched titles`: [Link to CSV](https://github.com/medialab/spsm-data/blob/main/database-files/for_import/supplemental_titles.csv) (rows: 110166)
   - all data sources' URLs, normalized and de-duplicated
   - each normalized URL is associated with (a) a non-normalized version used for achiving, `archive_url`, and (b) titles:
-    - `condor_share_title`: provided by Condor dataset
+    - `concat_condor_share_title`: concatenation of titles from Condor dataset, aggregated by shared normalized URL
     - `yt_video_headline`: requested from YouTube API
     - `webpage_title`: scraped from HTML
     - `webarchive_search_title`: recovered from Web Archive
