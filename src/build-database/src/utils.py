@@ -1,6 +1,7 @@
 import csv
 import gzip
 from typing import Generator
+from pathlib import Path
 
 import psycopg2
 import psycopg2.extensions
@@ -67,13 +68,14 @@ def count_table_rows(connection: psycopg2_connection, table_name: str) -> int:
 
 
 def yield_csv_dict_row(file) -> Generator[dict, None, None]:
-    try:
-        with open(file, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                yield row
-    except UnicodeDecodeError:
-        with gzip.open(file, "rt") as f:
-            reader = csv.DictReader(f)  # type: ignore
-            for row in reader:
-                yield row
+    if Path(file).is_file():
+        try:
+            with open(file, "r") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    yield row
+        except UnicodeDecodeError:
+            with gzip.open(file, "rt") as f:
+                reader = csv.DictReader(f)  # type: ignore
+                for row in reader:
+                    yield row
