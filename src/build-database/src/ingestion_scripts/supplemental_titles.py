@@ -16,7 +16,6 @@ def create_supplemental_titles_dataset_table(connection: connection, dataset: st
     with open(dataset) as f:
         reader = csv.DictReader(f)
         for row in tqdm(reader, total=file_length):
-            row.pop("sources")
             data = basic_csv_row_cleaning(row)
             title_table.insert_values(
                 data=data,

@@ -11,7 +11,7 @@ SUPPLEMENTAL_TITLES_DATASET_TABLE_COLUMNS = [
     BaseColumn("url_id", DType.VAR250, DType.NOTNULL),
     BaseColumn("normalized_url", DType.TEXT),
     BaseColumn("archive_url", DType.TEXT),
-    BaseColumn("concat_condor_share_title", DType.TEXT),
+    BaseColumn("concatenated_condor_share_titles", DType.TEXT),
     BaseColumn("yt_video_headline", DType.TEXT),
     BaseColumn("webpage_title", DType.TEXT),
     BaseColumn("webarchive_search_title", DType.TEXT),
