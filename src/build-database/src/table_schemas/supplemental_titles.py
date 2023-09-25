@@ -1,19 +1,12 @@
-import csv
 from dataclasses import dataclass
-
-import casanova
-from psycopg2.extensions import connection
-from tqdm import tqdm
 
 from table_schemas.utils import (
     BaseColumn,
     BaseTable,
     DType,
-    basic_csv_row_cleaning,
-    clear_table,
 )
 
-ENRICHED_TITLE_DATASET_TABLE_COLUMNS = [
+SUPPLEMENTAL_TITLES_DATASET_TABLE_COLUMNS = [
     BaseColumn("id", DType.SERIAL, DType.NOTNULL),
     BaseColumn("url_id", DType.VAR250, DType.NOTNULL),
     BaseColumn("normalized_url", DType.TEXT),
@@ -26,8 +19,8 @@ ENRICHED_TITLE_DATASET_TABLE_COLUMNS = [
 
 
 @dataclass
-class EnrichedTitleDatasetTable(BaseTable):
-    """Dataclass holding information about the condor data source.
+class SupplementalTitlesDatasetTable(BaseTable):
+    """Dataclass holding information about the titles added to aggregated URLs.
 
     Attributes required by the class's base (BaseTable):
     - name (str) : Name of the table
@@ -35,8 +28,8 @@ class EnrichedTitleDatasetTable(BaseTable):
     - pk (str) : Primary key / name of the column
     """
 
-    name = "dataset_enriched_titles"
-    columns = ENRICHED_TITLE_DATASET_TABLE_COLUMNS
+    name = "dataset_supplemental_titles"
+    columns = SUPPLEMENTAL_TITLES_DATASET_TABLE_COLUMNS
 
     def __init__(self):
         for col in self.columns:

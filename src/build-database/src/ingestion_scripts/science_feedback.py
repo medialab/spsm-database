@@ -13,7 +13,7 @@ def clean(data: dict) -> dict:
     standard_metadata = {
         "id": flattened["id"],
         "normalized_claim_url_hash": flattened["hash"],
-        "url_content_id": flattened["urlContentId"],
+        "claim_url_content_id": flattened["urlContentId"],
         "claim_reviewed": flattened["claimReviewed"],
         "published_date": flattened["publishedDate"],
         "publisher": flattened["publisher"],

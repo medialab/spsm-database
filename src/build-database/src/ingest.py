@@ -17,8 +17,8 @@ from psycopg2.extensions import connection as psycopg2_connection
             "de facto",
             "science feedback",
             "completed urls",
-            "searchable titles and urls",
             "supplemental titles",
+            "query titles",
         ]
     ),
 )
@@ -59,7 +59,6 @@ def cli(config, data_source, no_prompt):
 
         # Ingest original Condor dataset and enrich resources with titles
         if data_source == "condor":
-            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_condor(
                 connection=connection,
                 dataset=file_path,
@@ -67,7 +66,6 @@ def cli(config, data_source, no_prompt):
 
         # Ingest original De Facto dataset and enrich resources with titles
         elif data_source == "de facto":
-            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_de_facto(
                 connection=connection,
                 dataset=file_path,
@@ -75,7 +73,6 @@ def cli(config, data_source, no_prompt):
 
         # Ingest original Science Feedback and enrich resources with titles
         elif data_source == "science feedback":
-            title_dataset = info["data sources"]["supplemental titles"]
             new_table = ingestion_scripts.create_science(
                 connection=connection,
                 dataset=file_path,
@@ -87,18 +84,16 @@ def cli(config, data_source, no_prompt):
                 connection=connection, file=file_path
             )
 
-        # Ingest the dataset that relates titles/URLs with searchable versions
-        # and with a value indicating whether or not a search was attempted
-        elif data_source == "searchable titles and urls":
-            new_table = ingestion_scripts.create_searchable_titles_urls(
+        # Ingest the dataset that adds titles to data sources' URLs, aggregated
+        elif data_source == "supplemental titles":
+            new_table = ingestion_scripts.create_supplemental_titles_dataset_table(
                 connection=connection, dataset=file_path
             )
 
-        #
-        elif data_source == "supplemental titles":
-            new_table = ingestion_scripts.setup_enriched_title_dataset_table(
-                connection=connection, dataset=file_path
-            )
+        # Ingest the dataset that relates titles/URLs with searchable versions
+        # and with a value indicating whether or not a search was attempted
+        elif data_source == "query titles":
+            pass
 
         # If a new table was successfully created, return a count of its rows
         if new_table:
@@ -108,6 +103,7 @@ def cli(config, data_source, no_prompt):
 
     else:
         if not file_path:
+            print(file_path)
             raise FileNotFoundError
         if not connection:
             raise ConnectionError
