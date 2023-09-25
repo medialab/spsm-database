@@ -41,7 +41,7 @@ def clean(data: dict) -> dict:
     return full_data
 
 
-def insert(connection, dataset, supplemental_titles):
+def insert(connection, dataset):
     table = DeFactoDatasetTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data to table: {table.name}\n{dataset}")

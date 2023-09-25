@@ -20,10 +20,10 @@ def clean(data: dict) -> dict:
         "review_author": flattened["reviews_author"],
         "review_rating_value": flattened["reviews_reviewRatings_ratingValue"],
         "review_rating_standard_form": flattened["reviews_reviewRatings_standardForm"],
-        "url": flattened["url"],
+        "claim_url": flattened["url"],
         "normalized_claim_url": flattened["normalized_url"],
-        "url_rating_name": flattened["urlReviews_reviewRatings_alternateName"],
-        "url_rating_value": flattened["urlReviews_reviewRatings_ratingValue"],
+        "claim_url_rating_name": flattened["urlReviews_reviewRatings_alternateName"],
+        "claim_url_rating_value": flattened["urlReviews_reviewRatings_ratingValue"],
     }
     for k, v in standard_metadata.items():
         if v == "":
@@ -36,8 +36,8 @@ def clean(data: dict) -> dict:
     full_data.update({"review_or_url_rating_value": None})
     if full_data.get("review_rating_value"):
         full_data["review_or_url_rating_value"] = full_data["review_rating_value"]
-    elif full_data.get("url_rating_value"):
-        full_data["review_or_url_rating_value"] = full_data["url_rating_value"]
+    elif full_data.get("claim_url_rating_value"):
+        full_data["review_or_url_rating_value"] = full_data["claim_url_rating_value"]
 
     # When available, add data from the enriched JSON (aka not in the original CSV)
     review_url = (None,)
@@ -49,7 +49,7 @@ def clean(data: dict) -> dict:
     return full_data
 
 
-def insert(connection, dataset, supplemental_titles):
+def insert(connection, dataset):
     table = ScienceFeedbackDatasetTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data to table: {table.name}\n{dataset}")

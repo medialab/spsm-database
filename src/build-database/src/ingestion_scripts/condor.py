@@ -42,7 +42,7 @@ def clean(data: dict) -> dict:
     return data
 
 
-def insert(connection, dataset, supplemental_titles):
+def insert(connection, dataset):
     # Prepare Condor table for new data ingestion
     table = CondorDatasetTable()
     clear_table(connection=connection, table=table)

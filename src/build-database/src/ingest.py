@@ -63,7 +63,6 @@ def cli(config, data_source, no_prompt):
             new_table = ingestion_scripts.create_condor(
                 connection=connection,
                 dataset=file_path,
-                supplemental_titles=title_dataset,
             )
 
         # Ingest original De Facto dataset and enrich resources with titles
@@ -72,7 +71,6 @@ def cli(config, data_source, no_prompt):
             new_table = ingestion_scripts.create_de_facto(
                 connection=connection,
                 dataset=file_path,
-                supplemental_titles=title_dataset,
             )
 
         # Ingest original Science Feedback and enrich resources with titles
@@ -81,7 +79,6 @@ def cli(config, data_source, no_prompt):
             new_table = ingestion_scripts.create_science(
                 connection=connection,
                 dataset=file_path,
-                supplemental_titles=title_dataset,
             )
 
         # Ingest the manually completed URLs
