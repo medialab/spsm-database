@@ -7,7 +7,6 @@ from table_schemas.utils import (
 )
 
 SUPPLEMENTAL_TITLES_DATASET_TABLE_COLUMNS = [
-    BaseColumn("id", DType.SERIAL, DType.NOTNULL),
     BaseColumn("url_id", DType.VAR250, DType.NOTNULL),
     BaseColumn("normalized_url", DType.TEXT),
     BaseColumn("archive_url", DType.TEXT),
@@ -34,5 +33,5 @@ class SupplementalTitlesDatasetTable(BaseTable):
     def __init__(self):
         for col in self.columns:
             setattr(self, col.name, col)
-        pk_column = getattr(self, "id")
+        pk_column = getattr(self, "url_id")
         self.pk = pk_column.name
