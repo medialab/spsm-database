@@ -1,25 +1,26 @@
 import csv
+import gzip
 
 import casanova
 import click
 import yaml
 from psycopg2.extensions import connection as psycopg2_connection
 from rich.progress import (
+    MofNCompleteColumn,
     Progress,
-    TextColumn,
     SpinnerColumn,
+    TextColumn,
     TimeElapsedColumn,
     TimeRemainingColumn,
-    MofNCompleteColumn,
 )
 
+from table_schemas.claims import ClaimsTable
+from table_schemas.tweet import TweetTable
+from table_schemas.tweet_claim import TweetClaimTable
+from table_schemas.tweet_query import TweetQueryTable
 from table_schemas.utils import clear_table
 from tweet_scripts import tweet, tweet_claim, tweet_query
-from utils import connect_to_database
-from table_schemas.claims import ClaimsTable
-from table_schemas.tweet_claim import TweetClaimTable
-from table_schemas.tweet import TweetTable
-from table_schemas.tweet_query import TweetQueryTable
+from utils import connect_to_database, yield_csv_dict_row
 
 
 @click.group()
@@ -133,12 +134,11 @@ def insert(config, reset, filepath_list):
                 local_ingestion_task = progress.add_task(
                     description="[cyan]Importing data", total=file_length
                 )
-                with open(file, "r") as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        tweet.insert(connection=connection, data=row)
-                        tweet_query.insert(connection=connection, data=row)
-                        progress.advance(local_ingestion_task)
+
+                for row in yield_csv_dict_row(file):
+                    tweet.insert(connection=connection, data=row)
+                    tweet_query.insert(connection=connection, data=row)
+                    progress.advance(local_ingestion_task)
 
                 # Update global progress bar
                 progress.remove_task(local_ingestion_task)

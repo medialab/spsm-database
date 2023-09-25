@@ -1,3 +1,7 @@
+import csv
+import gzip
+from typing import Generator
+
 import psycopg2
 import psycopg2.extensions
 from psycopg2 import OperationalError
@@ -60,3 +64,16 @@ def count_table_rows(connection: psycopg2_connection, table_name: str) -> int:
         return cursor_result[0][0]
     else:
         raise TypeError
+
+
+def yield_csv_dict_row(file) -> Generator[dict, None, None]:
+    try:
+        with open(file, "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                yield row
+    except UnicodeDecodeError:
+        with gzip.open(file, "rt") as f:
+            reader = csv.DictReader(f)  # type: ignore
+            for row in reader:
+                yield row
