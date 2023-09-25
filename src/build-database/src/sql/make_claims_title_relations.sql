@@ -1,7 +1,11 @@
 drop table if exists claim_titles ;
 
 
-create table claim_titles(id serial, claim_id integer, title_text text, title_origin text) ;
+create table claim_titles(claim_id integer, title_text text, title_origin text) ;
+
+
+alter table claim_titles add constraint pk primary key (claim_id,
+                                                        title_text) ;
 
 
 insert into claim_titles (claim_id, title_text, title_origin)
@@ -36,7 +40,7 @@ from
      where title_from_condor is not null ) as foo
 group by foo.claim_id,
          foo.title,
-         foo.title_origin ;
+         foo.title_origin on conflict DO NOTHING;
 
 
 alter table claim_titles add constraint claim_fk
