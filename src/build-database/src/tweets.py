@@ -1,5 +1,4 @@
-import csv
-import gzip
+from pathlib import Path
 
 import casanova
 import click
@@ -75,26 +74,27 @@ def insert(config, reset, filepath_list):
             for n, pathname in enumerate(filepaths):
                 # Get name of file path and count length
                 file = pathname.strip()
-                print(f"\n[{n}] {file}")
-                count_task = progress.add_task(
-                    description="[bold yellow]Counting file length", total=1
-                )
-                file_length = casanova.reader.count(file)
-                progress.remove_task(count_task)
+                if Path(file).is_file():
+                    print(f"\n[{n}] {file}")
+                    count_task = progress.add_task(
+                        description="[bold yellow]Counting file length", total=1
+                    )
+                    file_length = casanova.reader.count(file)
+                    progress.remove_task(count_task)
 
-                # Import rows from CSV file
-                local_ingestion_task = progress.add_task(
-                    description="[cyan]Importing data", total=file_length
-                )
+                    # Import rows from CSV file
+                    local_ingestion_task = progress.add_task(
+                        description="[cyan]Importing data", total=file_length
+                    )
 
-                for row in yield_csv_dict_row(file):
-                    tweet.insert(connection=connection, data=row)
-                    tweet_query.insert(connection=connection, data=row)
-                    progress.advance(local_ingestion_task)
+                    for row in yield_csv_dict_row(file):
+                        tweet.insert(connection=connection, data=row)
+                        tweet_query.insert(connection=connection, data=row)
+                        progress.advance(local_ingestion_task)
 
-                # Update global progress bar
-                progress.remove_task(local_ingestion_task)
-                progress.advance(task_id=global_ingestion_task)
+                    # Update global progress bar
+                    progress.remove_task(local_ingestion_task)
+                    progress.advance(task_id=global_ingestion_task)
 
         tweet_query_table.add_foreign_key(
             foreign_key_column="tweet_id",
