@@ -90,10 +90,12 @@ def cli(config, data_source, no_prompt):
                 connection=connection, dataset=file_path
             )
 
-        # Ingest the dataset that relates titles/URLs with searchable versions
+        # Ingest the dataset that relates titles with searchable versions
         # and with a value indicating whether or not a search was attempted
         elif data_source == "query titles":
-            pass
+            new_table = ingestion_scripts.create_title_query_dataset_table(
+                connection=connection, dataset=file_path
+            )
 
         # If a new table was successfully created, return a count of its rows
         if new_table:

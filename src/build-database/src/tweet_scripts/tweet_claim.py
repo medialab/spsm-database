@@ -2,7 +2,7 @@ from psycopg2.extensions import connection as psycopg2_connection
 
 from table_schemas.claims import ClaimsTable
 from table_schemas.doc_title_relation import DocTitleRelationTable
-from table_schemas.searchable_titles_urls import SearchableTitlesURLSTable
+from table_schemas.title_query import TitleQueryDatasetTable
 from table_schemas.tweet import TweetTable
 from table_schemas.tweet_claim import TweetClaimTable
 from table_schemas.tweet_query import TweetQueryTable
@@ -15,7 +15,7 @@ def insert(connection: psycopg2_connection) -> BaseTable:
     tweet_claim = TweetClaimTable()
     tweet = TweetTable().name
     tweet_query = TweetQueryTable().name
-    searchable_titles_urls = SearchableTitlesURLSTable().name
+    searchable_titles_urls = TitleQueryDatasetTable().name
     doc_title_relation = DocTitleRelationTable().name
     claims = ClaimsTable().name
 

@@ -28,55 +28,6 @@ def cli():
     pass
 
 
-@cli.command("build-relations")
-@click.option("--config", type=click.STRING)
-def streamline(config):
-    """
-    Main function to streamline queries of Tweets and claims.
-    """
-    # Parse the configuration file
-    with open(config, "r") as f:
-        info = yaml.safe_load(f)
-
-    print("\n================================")
-
-    # Establish the PostgreSQL database connection
-    connection = connect_to_database(yaml=info)
-
-    if isinstance(connection, psycopg2_connection):
-        # Relate Tweets to queries
-        tweet_table = TweetTable()
-        tweet_query_table = TweetQueryTable()
-        tweet_query_table.add_foreign_key(
-            foreign_key_column="tweet_id",
-            target_table=tweet_table.name,
-            target_table_primary_key=tweet_table.pk,
-            connection=connection,
-        )
-
-        # Create the relational tweet-claim table
-        tweet_claim_table = TweetClaimTable()
-        clear_table(connection=connection, table=tweet_claim_table)
-
-        # Insert data into the table
-        tweet_claim.insert(connection=connection)
-
-        # Establish foreign keys on the relational table
-        claim_table = ClaimsTable()
-        tweet_claim_table.add_foreign_key(
-            foreign_key_column="claim_id",
-            target_table=claim_table.name,
-            target_table_primary_key=claim_table.pk,
-            connection=connection,
-        )
-        tweet_claim_table.add_foreign_key(
-            foreign_key_column="tweet_id",
-            target_table=tweet_table.name,
-            target_table_primary_key=tweet_table.pk,
-            connection=connection,
-        )
-
-
 @cli.command("ingest-data")
 @click.option("--config", type=click.STRING)
 @click.option("--reset", is_flag=True, help="FOR TESTING ONLY: Drop existing tables")
@@ -121,9 +72,10 @@ def insert(config, reset, filepath_list):
                 description="[bold green]Processing data files", total=len(filepaths)
             )
 
-            for pathname in filepaths:
+            for n, pathname in enumerate(filepaths):
                 # Get name of file path and count length
                 file = pathname.strip()
+                print(f"\n[{n}] {file}")
                 count_task = progress.add_task(
                     description="[bold yellow]Counting file length", total=1
                 )

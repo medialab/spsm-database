@@ -3,24 +3,18 @@ import csv
 import casanova
 from tqdm import tqdm
 
-from table_schemas.searchable_titles_urls import SearchableTitlesURLSTable
+from table_schemas.title_query import TitleQueryDatasetTable
 from table_schemas.utils import clear_table
 
 
 def clean(data: dict) -> dict:
     """Script for parsing and cleaning CSV file rows."""
-    skip = data.pop("skipped")
-    data.update(
-        {
-            "not_searched_on_twitter": skip,
-        }
-    )
     for k, v in data.items():
         if v == "":
             v = None
         elif isinstance(v, str):
             v = v.strip()
-        if k == "not_searched_on_twitter":
+        if k == "manually_skipped" or k == "same_as_original":
             if v == "0":
                 v = False
             else:
@@ -30,7 +24,7 @@ def clean(data: dict) -> dict:
 
 
 def insert(connection, dataset):
-    table = SearchableTitlesURLSTable()
+    table = TitleQueryDatasetTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data to table: {table.name}\n{dataset}")
 
