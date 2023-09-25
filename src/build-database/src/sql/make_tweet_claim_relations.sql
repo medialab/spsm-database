@@ -1,4 +1,4 @@
-drop table if exists tweet_claim ;
+drop table if exists tweet_claim cascade ;
 
 
 create table tweet_claim (id serial primary key, tweet_id varchar(20), claim_id integer, search_by_title boolean, query_title_is_same_as_raw_title boolean, match_probability float) ;

@@ -27,6 +27,7 @@ def connect_to_database(yaml):
             host=config["db_host"],
             port=config["db_port"],
         )
+        print("\n================================")
         print("Connection to PostgreSQL DB successful.")
     except OperationalError as e:
         print(f"The error {e} occured.")

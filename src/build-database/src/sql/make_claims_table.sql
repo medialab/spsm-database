@@ -1,4 +1,4 @@
-drop table if exists claims ;
+drop table if exists claims cascade ;
 
 
 create table claims (id SERIAL primary key, normalized_url text, normalized_url_hash varchar(250), condor_table_id integer, defacto_id text, science_feedback_id varchar(20), fact_check_time timestamp, title_from_html text, title_from_youtube text, title_from_webarchive text, title_from_concatenated_condor text, title_from_condor text) ;
