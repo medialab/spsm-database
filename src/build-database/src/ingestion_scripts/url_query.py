@@ -1,34 +1,40 @@
-import casanova
 import csv
 
+import casanova
 from tqdm import tqdm
 
-from table_schemas.science import ScienceFeedbackDatasetTable
+from table_schemas.url_query import URLQueryDatasetTable
 from table_schemas.utils import clear_table
 
 
 def clean(data: dict) -> dict:
-    clean_data = {}
+    """Script for parsing and cleaning CSV file rows."""
     for k, v in data.items():
         if v == "":
             v = None
         elif isinstance(v, str):
             v = v.strip()
-        clean_data.update({k: v})
-
-    return clean_data
+        if k == "manually_skipped":
+            if v == "0":
+                v = False
+            else:
+                v = True
+        data.update({k: v})
+    return data
 
 
 def insert(connection, dataset):
-    table = ScienceFeedbackDatasetTable()
+    table = URLQueryDatasetTable()
     clear_table(connection=connection, table=table)
     print(f"\nImporting data to table: {table.name}\n{dataset}")
+
+    # Ingest all of the dataset into the Searchable Titles & URLS table
     file_length = casanova.reader.count(dataset)
     with open(dataset) as f:
         reader = csv.DictReader(f)
         for row in tqdm(reader, total=file_length):
             table.insert_values(
-                data=clean(row),
+                data=clean(data=row),
                 connection=connection,
                 on_conflict="DO NOTHING",
             )

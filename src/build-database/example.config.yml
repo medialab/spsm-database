@@ -16,10 +16,13 @@ data sources:
   science feedback: "FILE.json"
 
   # Cleaned, enriched dataset of De Facto data source
-  de facto: "FILE.json"
+  de facto: "FILE.csv"
 
   # Dataset of HTML titles, YouTube titles, WebArchive titles, concatenated Condor share titles
   supplemental titles: "FILE.csv"
 
   # Dataset of all titles with their corresponding cleaned title used in Twitter search
   query titles: "FILE.csv"
+
+  # Dataset of all the URLs with their corresponding tweet-search version
+  url titles: "FILE.csv"

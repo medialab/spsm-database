@@ -19,6 +19,7 @@ from psycopg2.extensions import connection as psycopg2_connection
             "completed urls",
             "supplemental titles",
             "query titles",
+            "query urls",
         ]
     ),
 )
@@ -93,6 +94,13 @@ def cli(config, data_source, no_prompt):
         # and with a value indicating whether or not a search was attempted
         elif data_source == "query titles":
             new_table = ingestion_scripts.create_title_query_dataset_table(
+                connection=connection, dataset=file_path
+            )
+
+        # Ingest the dataset that relates titles with searchable versions
+        # and with a value indicating whether or not a search was attempted
+        elif data_source == "query urls":
+            new_table = ingestion_scripts.create_url_query_dataset_table(
                 connection=connection, dataset=file_path
             )
 

@@ -6,3 +6,4 @@ from ingestion_scripts.supplemental_titles import (
     create_supplemental_titles_dataset_table,
 )
 from ingestion_scripts.title_query import insert as create_title_query_dataset_table
+from ingestion_scripts.url_query import insert as create_url_query_dataset_table
