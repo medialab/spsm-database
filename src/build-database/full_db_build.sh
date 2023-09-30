@@ -9,6 +9,7 @@ python src/ingest.py $CONFIG --data-source "science feedback" --no-prompt
 python src/ingest.py $CONFIG --data-source "completed urls" --no-prompt
 python src/ingest.py $CONFIG --data-source "supplemental titles" --no-prompt
 python src/ingest.py $CONFIG --data-source "query titles" --no-prompt
+python src/ingest.py $CONFIG --data-source "query urls" --no-prompt
 
 # Merge the data sources into a claims table and build relations
 python src/run_sql.py --config $CONFIG src/sql/make_claims_table.sql

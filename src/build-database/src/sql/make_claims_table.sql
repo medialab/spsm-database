@@ -234,14 +234,35 @@ from
      join dataset_supplemental_titles dst on dataset.completed_normalized_url_hash = dst.url_id) as subquery
 where claims.condor_table_id = subquery.condor_id ;
 
-/* Extend dataset_supplemental_titles so it includes all URLs in database */
-insert into dataset_supplemental_titles (url_id)
+/* Create URL enrichment table so it includes all URLs in database/claims table */
+drop table if exists enrichment_by_url ;
+
+
+create table enrichment_by_url (id varchar(250) primary key, normalized_url text, archive_url text, title_from_concatenated_condor text, title_from_html text, title_from_webarchive text, title_from_youtube text) ;
+
+
+insert into enrichment_by_url (id, normalized_url, archive_url, title_from_concatenated_condor, title_from_html, title_from_webarchive, title_from_youtube)
+select url_id,
+       normalized_url,
+       archive_url,
+       concatenated_condor_share_titles,
+       webpage_title,
+       webarchive_search_title,
+       yt_video_headline
+from dataset_supplemental_titles ;
+
+
+insert into enrichment_by_url (id)
 select normalized_url_hash
 from claims on conflict do nothing ;
 
 
 alter table claims add constraint claim_url_fk
-foreign key (normalized_url_hash) references dataset_supplemental_titles (url_id) ;
+foreign key (normalized_url_hash) references enrichment_by_url (id) ;
+
+
+alter table dataset_supplemental_titles add constraint dataset_url_fk
+foreign key (url_id) references enrichment_by_url (id) ;
 
 
 alter table claims add constraint claim_url_query_fk
