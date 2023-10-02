@@ -14,7 +14,7 @@ def clean(data: dict) -> dict:
             v = None
         elif isinstance(v, str):
             v = v.strip()
-        if k == "manually_skipped" or k == "same_as_original" or k == "concatenation":
+        if k == "manually_skipped":
             if v == "0":
                 v = False
             else:

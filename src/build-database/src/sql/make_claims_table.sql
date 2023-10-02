@@ -1,13 +1,14 @@
 drop table if exists claims cascade ;
 
 
-create table claims (id SERIAL primary key, normalized_url text, normalized_url_hash varchar(250), condor_table_id integer, defacto_id text, science_feedback_id varchar(20), fact_check_time timestamp, fact_checked_false boolean, title_from_concatenated_condor text, title_from_html text, title_from_youtube text, title_from_webarchive text, title_from_condor TEXT) ;
+create table claims (id SERIAL primary key, normalized_url text, normalized_url_hash varchar(250), condor_table_id integer, defacto_id text, science_feedback_id varchar(20), publication_time timestamp, fact_check_time timestamp, fact_checked_false boolean, title_from_concatenated_condor text, title_from_html text, title_from_youtube text, title_from_webarchive text, title_from_condor TEXT) ;
 
 /* Insert claims from Condor dataset */
-insert into claims (normalized_url, normalized_url_hash, condor_table_id, fact_check_time, fact_checked_false)
+insert into claims (normalized_url, normalized_url_hash, condor_table_id, publication_time, fact_check_time, fact_checked_false)
 select dataset.normalized_clean_url,
        dataset.normalized_clean_url_hash,
        dataset.id,
+       dataset.first_post_time,
        dataset.tpfc_first_fact_check,
        case
            when dataset.tpfc_rating like '%false%' then true
@@ -66,10 +67,11 @@ from
 where claims.condor_table_id = subquery.condor_id ;
 
 /* Insert claims from De Facto dataset */
-insert into claims (normalized_url, normalized_url_hash, defacto_id, fact_check_time, fact_checked_false)
+insert into claims (normalized_url, normalized_url_hash, defacto_id, publication_time, fact_check_time, fact_checked_false)
 select dataset.normalized_claim_url,
        dataset.normalized_claim_url_hash,
        dataset.id,
+       dataset.claim_publication_date,
        dataset.review_publication_date,
        case dataset.claim_rating_value
            when 1 then true
@@ -122,11 +124,12 @@ from
 where claims.defacto_id = subquery.defacto_id ;
 
 /* Insert claims from Science Feedback dataset */
-insert into claims (normalized_url, normalized_url_hash, science_feedback_id, fact_check_time, fact_checked_false)
+insert into claims (normalized_url, normalized_url_hash, science_feedback_id, publication_time, fact_check_time, fact_checked_false)
 select dataset.normalized_claim_url,
        dataset.normalized_claim_url_hash,
        dataset.claim_appearance_id,
        dataset.claim_publication_date,
+       dataset.updated_review_date,
        case dataset.first_claim_appearance_review_rating_value
            when 1 then true
            else false
@@ -178,10 +181,11 @@ from
 where claims.science_feedback_id = subquery.science_feedback_id ;
 
 /* Insert claims from Completed URLs dataset */
-insert into claims (normalized_url, normalized_url_hash, condor_table_id, fact_check_time, fact_checked_false)
+insert into claims (normalized_url, normalized_url_hash, condor_table_id, publication_time, fact_check_time, fact_checked_false)
 select dataset.completed_normalized_url,
        dataset.completed_normalized_url_hash,
        dc.id,
+       dc.first_post_time,
        dc.tpfc_first_fact_check,
        case
            when dc.tpfc_rating like '%false%' then true
@@ -235,7 +239,7 @@ from
 where claims.condor_table_id = subquery.condor_id ;
 
 /* Create URL enrichment table so it includes all URLs in database/claims table */
-drop table if exists enrichment_by_url ;
+drop table if exists enrichment_by_url cascade ;
 
 
 create table enrichment_by_url (id varchar(250) primary key, normalized_url text, archive_url text, title_from_concatenated_condor text, title_from_html text, title_from_webarchive text, title_from_youtube text) ;

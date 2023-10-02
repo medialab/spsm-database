@@ -8,8 +8,8 @@ TITLE_QUERIES_TABLE_COLUMNS = [
     BaseColumn("tweet_search_title", DType.TEXT),
     BaseColumn("url_id", DType.VAR250),
     BaseColumn("manually_skipped", DType.BOOL),
-    BaseColumn("same_as_original", DType.BOOL),
-    BaseColumn("concatenation", DType.BOOL),
+    BaseColumn("validity", DType.FLOAT),
+    BaseColumn("validity_justification", DType.TEXT),
 ]
 
 
