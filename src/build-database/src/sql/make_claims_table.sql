@@ -268,6 +268,3 @@ foreign key (normalized_url_hash) references enrichment_by_url (id) ;
 alter table dataset_supplemental_titles add constraint dataset_url_fk
 foreign key (url_id) references enrichment_by_url (id) ;
 
-
-alter table claims add constraint claim_url_query_fk
-foreign key (normalized_url_hash) references dataset_url_query (url_id) ;
