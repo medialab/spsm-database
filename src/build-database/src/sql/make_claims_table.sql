@@ -142,7 +142,7 @@ select dataset.normalized_claim_url,
            when 1 then true
            else false
        end,
-       case dataset.claim_rating_value
+       case dataset.first_claim_appearance_review_rating_value
            when 5 then true
            else false
        end
