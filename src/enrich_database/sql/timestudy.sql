@@ -1,6 +1,5 @@
 select foo.fact_check_time,
        foo.tweet_time,
-       DATE_PART('day', foo.tweet_time::timestamp - foo.fact_check_time::timestamp) * 24 + DATE_PART('hour', foo.tweet_time::timestamp - foo.fact_check_time::timestamp) * 60 + DATE_PART('minute', foo.tweet_time::timestamp - foo.fact_check_time::timestamp) * 60 + DATE_PART('second', foo.tweet_time::timestamp - foo.fact_check_time::timestamp) as diff_seconds,
        foo.fact_checked_true,
        foo.fact_checked_false,
        foo.claim_id,
@@ -12,9 +11,14 @@ select foo.fact_check_time,
        foo.user_id,
        foo.unique_condor_id,
        foo.unique_defacto_id,
-       foo.unique_science_feedback_id
+       foo.unique_science_feedback_id,
+       extract (DAY
+                from foo.diff) * 86400 + extract (HOUR
+                                                  from foo.diff) * 3600 + extract (MINUTE
+                                                                                   from foo.diff) * 60 + extract (SECOND
+                                                                                                                  from foo.diff) as diff_seconds
 from
-  (select c.fact_check_time,
+  (select t.local_time - c.fact_check_time as diff c.fact_check_time,
           c.fact_checked_true,
           c.fact_checked_false,
           c.id as claim_id,
@@ -31,5 +35,4 @@ from
    from claims c
    join tweet_claim tc on tc.claim_id = c.id
    join tweet_query tq on tc.tweet_id = tq.tweet_id
-   join tweet t on tc.tweet_id = t.id
-) foo
+   join tweet t on tc.tweet_id = t.id) foo
