@@ -18,7 +18,8 @@ select foo.fact_check_time,
                                                                                    from foo.diff) * 60 + extract (SECOND
                                                                                                                   from foo.diff) as diff_seconds
 from
-  (select t.local_time - c.fact_check_time as diff c.fact_check_time,
+  (select t.local_time - c.fact_check_time as diff,
+          c.fact_check_time,
           c.fact_checked_true,
           c.fact_checked_false,
           c.id as claim_id,
