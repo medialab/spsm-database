@@ -4,6 +4,7 @@ from table_schemas.utils import BaseColumn, BaseTable, DType
 
 TWEET_TABLE_COLUMNS = [
     BaseColumn("id", DType.VAR20, DType.NOTNULL),
+    BaseColumn("timestamp_utc", DType.DATETIME),
     BaseColumn("local_time", DType.DATETIME),
     BaseColumn("user_screen_name", DType.VAR250),
     BaseColumn("user_id", DType.VAR20, DType.NOTNULL),
