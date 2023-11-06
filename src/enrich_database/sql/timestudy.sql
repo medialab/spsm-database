@@ -18,7 +18,7 @@ select foo.fact_check_time,
                                                                                    from foo.diff) * 60 + extract (SECOND
                                                                                                                   from foo.diff) as diff_seconds
 from
-  (select t.local_time - c.fact_check_time as diff,
+  (select t.timestamp_utc - c.fact_check_time as diff,
           c.fact_check_time,
           c.fact_checked_true,
           c.fact_checked_false,
@@ -27,7 +27,7 @@ from
           tq.query,
           tc.search_by_title,
           tq.tweet_id,
-          t.local_time as tweet_time,
+          t.timestamp_utc as tweet_time,
           t.retweeted_id,
           t.user_id,
           c.condor_table_id as unique_condor_id,
