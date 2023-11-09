@@ -5,7 +5,7 @@ columns:
   - name: VARCHAR(250)
   - verified: BOOLEAN
   - url: VARCHAR(250)
-  - image: VARCHAR(250)
+  - image: TEXT
   - tweets: BIGINT
   - followers: BIGINT
   - friends: BIGINT
