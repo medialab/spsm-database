@@ -11,6 +11,7 @@ select foo.fact_check_time,
        foo.quoted_id,
        foo.user_id,
        foo.unique_condor_id,
+       foo.condor_public_shares_top_country,
        foo.unique_defacto_id,
        foo.unique_science_feedback_id,
        extract (DAY
@@ -36,6 +37,7 @@ from
           t.quoted_id,
           t.user_id,
           c.condor_table_id as unique_condor_id,
+          c.public_shares_top_country,
           c.defacto_id as unique_defacto_id,
           c.science_feedback_id as unique_science_feedback_id
    from claims c
