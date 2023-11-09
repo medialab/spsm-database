@@ -1,0 +1,16 @@
+name: "twitter_user"
+primary_key: "id"
+columns:
+  - id: VARCHAR(20)
+  - name: VARCHAR(250)
+  - verified: BOOLEAN
+  - url: VARCHAR(250)
+  - image: VARCHAR(250)
+  - tweets: BIGINT
+  - followers: BIGINT
+  - friends: BIGINT
+  - likes: BIGINT
+  - lists: BIGINT
+  - created_at: TIMESTAMP
+  - timestamp_utc: TIMESTAMP
+  - collection_time: TIMESTAMP

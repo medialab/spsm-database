@@ -1,0 +1,5 @@
+name: tweet_query
+primary_key: tweet_id,query
+columns:
+  - tweet_id: VARCHAR(20)
+  - query: TEXT
