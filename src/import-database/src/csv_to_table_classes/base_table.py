@@ -84,7 +84,7 @@ class TableBase(ABC):
 
             # Cast booleans
             if v and table_column_name in self.bool_columns:
-                v = bool(v)
+                v = bool(int(v))
 
             # Cast timestamps
             if v and "timestamp" in table_column_name:

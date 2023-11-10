@@ -49,6 +49,8 @@ class TwitterUserTable(TableBase):
     def clean(self, row: Dict) -> Dict:
         clean_row = self._clean_csv_row(row, prefix=self.prefix)
         clean_row.update({"collection_time": row["collection_time"]})
+        clean_row.update({"display_name": row["user_name"]})
+        clean_row.update({"handle": row["user_screen_name"]})
         return clean_row
 
     def insert_row(self, row: Dict) -> None:

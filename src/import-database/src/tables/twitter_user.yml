@@ -2,15 +2,18 @@ name: "twitter_user"
 primary_key: "id"
 columns:
   - id: VARCHAR(20)
-  - name: VARCHAR(250)
+  - display_name: TEXT
+  - handle: VARCHAR(250)
+  - description: TEXT
   - verified: BOOLEAN
-  - url: TEXT
+  - url: VARCHAR(250)
   - image: TEXT
   - tweets: BIGINT
   - followers: BIGINT
   - friends: BIGINT
   - likes: BIGINT
   - lists: BIGINT
+  - location: VARCHAR(250)
   - created_at: TIMESTAMP
   - timestamp_utc: TIMESTAMP
   - collection_time: TIMESTAMP
