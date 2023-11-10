@@ -4,7 +4,7 @@ columns:
   - id: VARCHAR(20)
   - name: VARCHAR(250)
   - verified: BOOLEAN
-  - url: VARCHAR(250)
+  - url: TEXT
   - image: TEXT
   - tweets: BIGINT
   - followers: BIGINT
