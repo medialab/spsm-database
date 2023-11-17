@@ -2,6 +2,7 @@ select foo.fact_check_time,
        foo.tweet_time,
        foo.fact_checked_true,
        foo.fact_checked_false,
+       dc.tpfc_rating,
        foo.claim_id,
        foo.claim_url_id,
        foo.query,
@@ -20,10 +21,7 @@ select foo.fact_check_time,
                                                                                                                   from foo.diff) as diff_seconds
 from
   (select t.timestamp_utc - c.fact_check_time as diff,
-          case
-              when c.defacto_id is not null then c.fact_check_time + interval '1 hour'
-              else c.fact_check_time
-          end,
+          c.fact_check_time,
           c.fact_checked_true,
           c.fact_checked_false,
           c.id as claim_id,
@@ -42,3 +40,4 @@ from
    join tweet_claim tc on tc.claim_id = c.id
    join tweet_query tq on tc.tweet_id = tq.tweet_id
    join tweet t on tc.tweet_id = t.id) foo
+left join dataset_condor dc on foo.unique_condor_id = dc.id
