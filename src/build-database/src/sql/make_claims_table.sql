@@ -76,15 +76,15 @@ select dataset.normalized_claim_url,
        dataset.normalized_claim_url_hash,
        dataset.id,
        dataset.claim_publication_date,
-       dataset.review_publication_date,
-       case dataset.claim_rating_value
-           when 1 then true
-           else false
-       end,
-       case dataset.claim_rating_value
-           when 5 then true
-           else false
-       end
+       dataset.review_publication_date + interval '1 hour',
+                                                  case dataset.claim_rating_value
+                                                      when 1 then true
+                                                      else false
+                                                  end,
+                                                  case dataset.claim_rating_value
+                                                      when 5 then true
+                                                      else false
+                                                  end
 from dataset_de_facto dataset ;
 
 
@@ -132,20 +132,19 @@ from
 where claims.defacto_id = subquery.defacto_id ;
 
 /* Insert claims from Science Feedback dataset */
-insert into claims (normalized_url, normalized_url_hash, science_feedback_id, publication_time, fact_check_time, fact_checked_false, fact_checked_true)
+insert into claims (normalized_url, normalized_url_hash, science_feedback_id, fact_check_time, fact_checked_false, fact_checked_true)
 select dataset.normalized_claim_url,
        dataset.normalized_claim_url_hash,
        dataset.claim_appearance_id,
-       dataset.claim_publication_date,
-       dataset.updated_review_date,
-       case dataset.first_claim_appearance_review_rating_value
-           when 1 then true
-           else false
-       end,
-       case dataset.first_claim_appearance_review_rating_value
-           when 5 then true
-           else false
-       end
+       dataset.claim_publication_date + interval '1 hour',
+                                                 case dataset.first_claim_appearance_review_rating_value
+                                                     when 1 then true
+                                                     else false
+                                                 end,
+                                                 case dataset.first_claim_appearance_review_rating_value
+                                                     when 5 then true
+                                                     else false
+                                                 end
 from dataset_science_feedback dataset ;
 
 
