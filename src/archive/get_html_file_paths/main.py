@@ -5,7 +5,20 @@ import click
 import dotenv
 from archive_files import ArchiveFiles
 from path_management import HTMLFilePath
-from rich.progress import Progress
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TextColumn,
+    TimeElapsedColumn,
+)
+
+ProgressBar = Progress(
+    TextColumn("[progress.description]{task.description}"),
+    BarColumn(),
+    MofNCompleteColumn(),
+    TimeElapsedColumn(),
+)
 
 
 class DefaultArchive:
@@ -73,17 +86,20 @@ def main(archive, infile, outfile):
 
     total_urls = casanova.count(infile)
 
-    with open(infile, "r") as f, open(outfile, "w") as of, Progress() as p:
+    with open(infile, "r") as f, open(outfile, "w") as of, ProgressBar as p:
         enricher = casanova.enricher(
-            f, of, add=["found_archived_html", "archived_html_path"]
+            f,
+            of,
+            add=["found_archived_html", "archived_html_path", "archive_html_base_ref"],
         )
         t = p.add_task(description="[bold blue]Parsing file paths...", total=total_urls)
         for row, url_id in enricher.cells("url_id", with_rows=True):
             archived = False
+            archive_base_ref = ArchiveFiles(url_id=url_id, parent=archive).archive
             html_file = path_finder(url_hash=url_id)
             if html_file:
                 archived = True
-            enricher.writerow(row, [archived, html_file])
+            enricher.writerow(row, [archived, html_file, archive_base_ref])
             p.advance(t)
 
 
