@@ -41,9 +41,9 @@ class TableBase(ABC):
         }
 
     def _create_table(self, connection: Connection, reset: bool) -> None:
-        drop = f"DROP TABLE IF EXISTS {self.name}"
         create = f"CREATE TABLE IF NOT EXISTS {self.name} ({self.column_dtypes_string}, PRIMARY KEY ({self.primary_key}))"
         if reset:
+            drop = f"DROP TABLE IF EXISTS {self.name}"
             execute_query(connection=connection, query=drop)
         execute_query(connection=connection, query=create)
         print(f"\nCreated table '{self.name}'.")

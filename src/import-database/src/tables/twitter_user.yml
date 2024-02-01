@@ -1,7 +1,7 @@
 name: "twitter_user"
 primary_key: "id"
 columns:
-  - id: VARCHAR(20)
+  - id: VARCHAR(250)
   - display_name: TEXT
   - handle: VARCHAR(250)
   - description: TEXT

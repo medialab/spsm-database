@@ -1,4 +1,8 @@
+import logging
+
 from psycopg2.extensions import connection as Connection
+
+logging.basicConfig(filemode="w", filename="postgres.log")
 
 
 def execute_query(
@@ -15,9 +19,9 @@ def execute_query(
         else:
             cursor.execute(query)
     except Exception as e:
-        print(f"\nquery: {query}")
-        print(f"values: {values}")
-        print(f"The error {e} occured")
+        msg = f"\nquery: {query}\nvalues: {values}\nThe error {e} occured"
+        print(msg)
+        logging.log(level=1, msg=msg)
         raise e
     else:
         if return_cursor:
