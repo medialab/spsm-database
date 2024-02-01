@@ -82,6 +82,10 @@ class TableBase(ABC):
             if v == "":
                 v = None
 
+            # Remove null values
+            if v:
+                v = v.replace("\x00", "")
+
             # Cast booleans
             if v and table_column_name in self.bool_columns:
                 v = bool(int(v))
