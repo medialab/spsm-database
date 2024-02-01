@@ -50,7 +50,11 @@ def users(config, reset, filepath_list):
                     description="[cyan]Importing rows", total=file_length
                 )
                 for row in yield_csv_dict_row(file=file):
-                    twitter_user_table.insert_row(row)
+                    try:
+                        twitter_user_table.insert_row(row)
+                    except Exception as e:
+                        print(row)
+                        raise e
 
                     # Update progress bars
                     progress.advance(local_task)
