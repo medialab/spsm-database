@@ -55,11 +55,11 @@ class RowParser:
             uri_view = path_parser.make_view_uri(html_file_path)
             addendum = [html_file_path, uri_view]
             if len(self.default_enricher_addendum) == 3:
-                addendum.append([archive_time])
+                addendum.append([str(archive_time)])
                 return row, addendum
             else:
                 if archive_time:
-                    row[self.archive_timestamp_pos] = archive_time  # type:ignore
+                    row[self.archive_timestamp_pos] = str(archive_time)  # type:ignore
                 return row, addendum
         else:
             return row, self.default_enricher_addendum
