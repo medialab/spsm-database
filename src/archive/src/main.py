@@ -63,7 +63,7 @@ def main(infile: str, outfile: str, archive_dir: str, web_archive: bool):
 
                 # If the URL has already been arcived, skip it and write the file path
                 html_file_path = path_parser.html_file
-                if html_file_path:
+                if html_file_path and html_file_path.stat().st_size > 0:
                     wget_log.write(
                         f"[{datetime.utcnow()}]\tSkipping\t{url_id}\t'{html_file_path}'\n"
                     )
