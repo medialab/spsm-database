@@ -38,17 +38,19 @@ def cli():
     help="Path to enriched claims table, with new columns with archive info",
 )
 def webarchive(infile, outfile):
+    if not Path(outfile).is_file() or Path(outfile).stat().st_size == 0:
+        with open(outfile, "w") as of:
+            of.write("time\tcanceled\turl\n")
+
     total = casanova.count(infile)
     console = Console()
     console.clear()
     status = console.status("Not started")
     p = ProgressBar
-    with Live(Panel(Group(status, p))), open(infile, "r") as f, open(
-        outfile, "w"
-    ) as of:
-        enricher = casanova.enricher(f, of, add=["web_archive_time", "canceled"])
+    with Live(Panel(Group(status, p))), open(infile, "r") as f:
+        reader = casanova.reader(infile)
         t = p.add_task("CURL subprocess", total=total)
-        for row, archive_url in enricher.cells("archive_url", with_rows=True):
+        for _, archive_url in reader.cells("archive_url", with_rows=True):
             status.update(f"[green]Sending to Web Archive\n{archive_url}")
             skipped = False
             archive_time = datetime.utcnow()
@@ -64,8 +66,10 @@ def webarchive(infile, outfile):
                 except KeyboardInterrupt:
                     status.update("[red]Stopped whole script.")
                     exit()
+            with open(outfile, "a") as of:
+                log = "%s\t%s\t%s\n" % (archive_time, skipped, archive_url)
+                of.write(log)
 
-            enricher.writerow(row, [archive_time, skipped])
             p.advance(t)
 
 
@@ -75,14 +79,14 @@ def webarchive(infile, outfile):
     "-i",
     type=click.Path(exists=True, readable=True),
     required=True,
-    help="Claims table",
+    help="Dataset of URLs to archive",
 )
 @click.option(
     "--outfile",
     "-o",
     type=click.Path(writable=True),
     required=True,
-    help="Path to enriched claims table, with new columns with archive info",
+    help="Path to enriched dataset, with new columns with archive info",
 )
 @click.option(
     "--archive-dir",
