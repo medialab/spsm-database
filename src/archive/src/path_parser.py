@@ -76,6 +76,7 @@ class ArchiveFiles:
     def join_to_archive(self, url_path: str | Path) -> Path:
         return self.archive.joinpath(url_path)
 
-    def make_view_uri(self, html_file_path: Path):
-        rel_path = html_file_path.relative_to(self.archive_root.resolve())
-        return "http://spsm.reims.sciences-po.fr/webarchives/" + str(rel_path)
+    def make_view_uri(self, html_file_path: Path | None) -> str | None:
+        if html_file_path and html_file_path.stat().st_size > 0:
+            rel_path = html_file_path.relative_to(self.archive_root.resolve())
+            return "http://spsm.reims.sciences-po.fr/webarchives/" + str(rel_path)

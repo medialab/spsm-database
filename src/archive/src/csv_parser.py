@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
@@ -46,12 +47,11 @@ class RowParser:
     def output(
         self,
         row: List,
-        path_parser: ArchiveFiles,
+        uri_view: str | None,
         html_file_path: Path | None,
-        archive_time: str | None = None,
+        archive_time: datetime | None = None,
     ) -> Tuple[List, List]:
         if html_file_path:
-            uri_view = path_parser.make_view_uri(html_file_path)
             addendum = [html_file_path, uri_view]
             if len(self.default_enricher_addendum) == 3:
                 addendum.append(archive_time)

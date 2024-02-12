@@ -8,6 +8,8 @@ from rich.progress import (
     TimeElapsedColumn,
 )
 
+POSTGRES_TABLE_NAME = "_archive_in_progress"
+
 SRC_DIR = Path(__file__).parent
 ROOT_DIR = SRC_DIR.parent
 SCRIPT_DIR = ROOT_DIR.joinpath("scripts")
