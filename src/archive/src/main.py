@@ -176,7 +176,7 @@ def wget(infile: str, outfile: str, archive_dir: str, read_time: bool):
 
                         # Run the command within the time-out interval
                         try:
-                            _, errs = process.communicate(timeout=60)
+                            _, errs = process.communicate(timeout=120)
                             if errs:
                                 raise OSError(errs)
                         except subprocess.TimeoutExpired:
