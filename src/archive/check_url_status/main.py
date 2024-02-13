@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import casanova
+from minet.constants import DEFAULT_URLLIB3_TIMEOUT
 from minet.web import request
 from rich.progress import (
     BarColumn,
@@ -37,7 +38,7 @@ def main():
         writer.writerow(["url_id", "archive_url", "status", "exception"])
         task = progress.add_task("Requesting", total=total)
         future_to_url = {
-            pool.submit(request, url): (url, row[url_id_pos])
+            pool.submit(minet_request, url): (url, row[url_id_pos])
             for row, url in reader.cells("archive_url", with_rows=True)
         }
         for future in as_completed(future_to_url):
@@ -49,6 +50,10 @@ def main():
                 writer.writerow([url_id, url, data.status, exc])
             else:
                 writer.writerow([url_id, url, data.status, None])
+
+
+def minet_request(url):
+    return request(url, timeout=DEFAULT_URLLIB3_TIMEOUT)
 
 
 if __name__ == "__main__":
