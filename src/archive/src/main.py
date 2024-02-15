@@ -11,7 +11,7 @@ from rich.console import Console, Group
 from rich.live import Live
 from rich.panel import Panel
 
-from constants import WEBARCHIVE_SCRIPT, WGET_SCRIPT, ProgressBar
+from constants import WEBARCHIVE_SCRIPT, WGET_CLEANUP_SCRIPT, WGET_SCRIPT, ProgressBar
 from csv_parser import Enricher
 from database import PostgresWrapper
 from path_parser import ArchiveFiles
@@ -97,13 +97,21 @@ def webarchive(infile, outfile):
     help="Path to the archive directory",
 )
 @click.option(
-    "--read-time",
+    "--timeout",
+    "-t",
+    type=click.INT,
+    required=False,
+    default=120,
+    help="Seconds for timeout.",
+)
+@click.option(
+    "--ignore-time",
     is_flag=True,
     show_default=True,
     default=False,
     help="Read time of found HTML file",
 )
-def wget(infile: str, outfile: str, archive_dir: str, read_time: bool):
+def wget(infile: str, outfile: str, archive_dir: str, timeout: int, ignore_time: bool):
     console = Console()
 
     with open("config.yml") as f:
@@ -131,12 +139,12 @@ def wget(infile: str, outfile: str, archive_dir: str, read_time: bool):
                 # If the URL has already been arcived, skip it and write the file path
                 html_file_path = path_parser.html_file
                 if html_file_path and html_file_path.stat().st_size > 0:
-                    if read_time:
+                    if ignore_time:
+                        archive_time = None
+                    else:
                         archive_time = datetime.fromtimestamp(
                             html_file_path.stat().st_ctime
                         )
-                    else:
-                        archive_time = None
                     wget_log.write(
                         f"[{datetime.utcnow()}]\tSkipping\t{url_id}\t'{html_file_path}'\n"
                     )
@@ -180,12 +188,21 @@ def wget(infile: str, outfile: str, archive_dir: str, read_time: bool):
 
                         # Run the command within the time-out interval
                         try:
-                            _, errs = process.communicate(timeout=120)
+                            _, errs = process.communicate(timeout=timeout)
                             if errs:
                                 raise OSError(errs)
+                        # If the process timed out, kill the wget command and
+                        # grep file names in the the stopped log to the paths file
                         except subprocess.TimeoutExpired:
-                            # os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                             process.terminate()
+                            subprocess.run(
+                                [
+                                    WGET_CLEANUP_SCRIPT,
+                                    path_parser.archive,
+                                    path_parser.rel_log,
+                                    path_parser.rel_paths,
+                                ]
+                            )
 
                     # Stop the command with a keyboard interrupt
                     except KeyboardInterrupt as e:

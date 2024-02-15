@@ -16,6 +16,7 @@ SCRIPT_DIR = ROOT_DIR.joinpath("scripts")
 
 WEBARCHIVE_SCRIPT = SCRIPT_DIR.joinpath("webarchive.sh")
 WGET_SCRIPT = SCRIPT_DIR.joinpath("wget.sh")
+WGET_CLEANUP_SCRIPT = SCRIPT_DIR.joinpath("wget_cleanup.sh")
 WGET_LOG = Path.cwd().joinpath("wget.log")
 
 if not WEBARCHIVE_SCRIPT.is_file():
