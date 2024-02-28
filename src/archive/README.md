@@ -19,7 +19,7 @@ To run the archiving script, call the command `python src/main.py wget`. It requ
 - `-c` : path to a YAML file that contains connection details for the PostgreSQL database
 
 ```console
-$ python src/main.py -c <DB CONNECTION CONFIG> -i <URLS FILE> -o <ENRICHED FILE> -a <ARCHIVE ROOT> --web-archive
+$ python src/main.py wget -c <DB CONNECTION CONFIG> -i <URLS FILE> -o <ENRICHED FILE> -a <ARCHIVE ROOT> --web-archive
 ```
 
 ### Test locally
