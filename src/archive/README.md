@@ -10,7 +10,7 @@ This module contains 2 steps for managing the project's archive.
 Run the script [`src/main.py`](src/main.py) to archive a unified (de-duplicated) set of URLs. The module requires input and output files. The input file must be a CSV that contains the URL to archive (column `archive_url`) and an md5 hash of the URL's normalization (column header `url_id` or `normalized_url_hash`). The script can run from anywhere if you provide a path to the root of the archive in which you want `wget` to construct its file systems. Otherwise, it will create the archive file system from your current working directory. Lastly, if you want to send the URL to Web Archive, add the `--web-archive` flag to the command. If you want to skip this step and just use the `wget` process, don't add the flag.
 
 ```console
-$ python src/main.py -i <URLS FILE> -o <ENRICHED FILE> -a <ARCHIVE ROOT> --web-archive
+$ python src/main.py -c <DB CONNECTION CONFIG> -i <URLS FILE> -o <ENRICHED FILE> -a <ARCHIVE ROOT> --web-archive
 ```
 
 For example, let's say you provide the path `/store/fakenews/archive-web/archive2.0/` to the option `-a` (`--archive-dir`). When processing a URL with the hash `6dbe42414220727f0552aba43f202501`, the script will create the following folders descending from the archive directory.

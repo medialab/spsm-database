@@ -75,6 +75,13 @@ def webarchive(infile, outfile):
 
 @cli.command("wget")
 @click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True, readable=True),
+    required=True,
+    help="YAML file with configuration to connect to database",
+)
+@click.option(
     "--infile",
     "-i",
     type=click.Path(exists=True, readable=True),
@@ -109,14 +116,21 @@ def webarchive(infile, outfile):
     is_flag=True,
     show_default=True,
     default=False,
-    help="Read time of found HTML file",
+    help="Do not update the in-file's timestamp column with the time of a found HTML file",
 )
-def wget(infile: str, outfile: str, archive_dir: str, timeout: int, ignore_time: bool):
+def wget(
+    config: str,
+    infile: str,
+    outfile: str,
+    archive_dir: str,
+    timeout: int,
+    ignore_time: bool,
+):
     console = Console()
 
-    with open("config.yml") as f:
-        config = yaml.safe_load(f)
-    db_wrapper = PostgresWrapper(config)
+    with open(config) as f:
+        config_data = yaml.safe_load(f)
+    db_wrapper = PostgresWrapper(config_data)
 
     with Enricher(infile, outfile) as e:
         wget_log, enricher, row_parser = e
