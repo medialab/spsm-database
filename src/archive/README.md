@@ -7,11 +7,56 @@ This module contains 2 steps for managing the project's archive.
 
 ## 1. Archive URLs
 
-Run the script [`src/main.py`](src/main.py) to archive a unified (de-duplicated) set of URLs. The module requires input and output files. The input file must be a CSV that contains the URL to archive (column `archive_url`) and an md5 hash of the URL's normalization (column header `url_id` or `normalized_url_hash`). The script can run from anywhere if you provide a path to the root of the archive in which you want `wget` to construct its file systems. Otherwise, it will create the archive file system from your current working directory. Lastly, if you want to send the URL to Web Archive, add the `--web-archive` flag to the command. If you want to skip this step and just use the `wget` process, don't add the flag.
+Run the `wget` command in the script [`src/main.py`](src/main.py) to archive a unified (de-duplicated) set of URLs. If you want to also send the URL to Web Archive, add the `--web-archive` flag to the `wget` command. If you want to skip this step and just use the `wget` process, don't add the flag.
+
+### [WGET archiving script's](src/main.py) required options:
+
+To run the archiving script, call the command `python src/main.py wget`. It requires the following options:
+
+- `-i` : file path to a CSV that contains the URL to archive (column `archive_url`) and an md5 hash of the URL's normalization (column `url_id`)
+- `-o` : file path to a CSV that will contain enrich the in-file with information about each URL's archiving
+- `-a` : path to the directory in which the root of the archiving will be (from where the WGET command will run)
+- `-c` : path to a YAML file that contains connection details for the PostgreSQL database
 
 ```console
 $ python src/main.py -c <DB CONNECTION CONFIG> -i <URLS FILE> -o <ENRICHED FILE> -a <ARCHIVE ROOT> --web-archive
 ```
+
+### Test locally
+
+The script will write its results immediately into a PostgreSQL table called "\_archive_in_progress" (see/modify the table name in [src/constants.py](src/constants.py)). Therefore, to test this script locally, set up a database with the table:
+
+1. Start a [PostgreSQL](https://www.postgresql.org/download/) instance.
+
+2. Create a database: `createdb -h localhost -p 5432 -U "username" test-archive`
+
+3. Connect to the test database: `psql -h localhost -p 5432 -U "username" -d test-archive`
+
+4. Create the archiving-in-progress table: `create table "_archive_in_progress" (url_id varchar(250) primary key, archive_url text, archive_timestamp_utc timestamp, archive_html_file text, archive_view_uri text, screen_id varchar(250));`
+
+Next, write the test database's connection details in a YAML configuration file:
+
+```yaml
+---
+connection:
+  db_name: "test-archive"
+  db_user: "username"
+  db_password: ""
+  db_port: "5432"
+  db_host: "localhost"
+```
+
+Finally, run the script on a CSV file with the following columns:
+
+| **url_id** | **archive_url** |
+| ---------- | --------------- |
+| 12345      | https://...     |
+
+```console
+$ python src/main.py -i INFILE -c CONFIG -o OUTFILE -a ARCHIVE
+```
+
+### How's it work?
 
 For example, let's say you provide the path `/store/fakenews/archive-web/archive2.0/` to the option `-a` (`--archive-dir`). When processing a URL with the hash `6dbe42414220727f0552aba43f202501`, the script will create the following folders descending from the archive directory.
 
@@ -72,11 +117,25 @@ The output file contains the 2 required columns, `archive_url` and `url_id` or `
 
 - When in doubt about what URLs were processed, consult the `./wget.log`, which is generated from the current working directory / where you were when you started the script. The log is appended in real-time with a line for every URL, saying whether it was skipped (above) or whether it is being archived. In the latter case, the log is appended as soon as the archiving with `wget` begins and the date reflects the start of the process.
 
+### Integrate archive into urls table
+
+After updating the `_archive_in_progress` table, you might want to integerate that new information into the permanent `urls` table in the SPSM database. (If you're worried about altering this table, export it first.) Run the following SQL:
+
+```sql
+update urls
+set
+    archive_timestamp = aip.archive_timestamp_utc,
+    archive_html_file = aip.archive_html_file,
+    archive_view_uri = aip.archive_view_uri
+from "_archive_in_progress" aip
+where urls.id = aip.url_id
+```
+
 ## 2. Ingest information
 
 ### Find HTML files via URL ID
 
-To simply find the URLs whose files have been saved on the server, run the [`get_html_file_paths/main.py`](get_html_file_paths/main.py) module. This script is useful if you don't have the output of the current archiving procedure.
+To simply find the URLs whose files have already been saved in the server's archive, run the [`get_html_file_paths/main.py`](get_html_file_paths/main.py) module. This script is useful if you don't have the output of the current archiving procedure.
 
 Options:
 
@@ -93,5 +152,3 @@ For all the URLs in the input file, it returns an output file with the following
 - `found_archived_html` : True/False
 - `archived_html_path` : Absolute path to the index file on the server.
 - `archive_html_base_ref` [outmoded]
-
-### Match the HTML archive to the database's `claims` table
