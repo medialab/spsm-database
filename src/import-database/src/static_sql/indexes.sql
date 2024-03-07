@@ -1,13 +1,8 @@
-drop index if exists tweet_user_id_index ;
+--drop index if exists tweet_user_id_index ;
 
 
-create index tweet_user_id_index on tweet using hash (user_id) ;
+--create index tweet_user_id_index on tweet using hash (user_id) ;
 
-
-drop index if exists tweet_lang_index ;
-
-
-create index tweet_lang_index on tweet using hash (lang) ;
 
 
 drop index if exists tweet_retweeted_id_index ;
